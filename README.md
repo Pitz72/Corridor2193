@@ -1,5 +1,45 @@
-# Corridor2193
-# Corridor 2193: Last Run  ## An Interactive Sci-Fi Thriller  **Corridor 2193: Last Run** is a gripping interactive fiction experience developed in pure HTML, CSS, and JavaScript. It draws inspiration from the classic first-person shooters of the 1990s, particularly Doom, and is based on an original short story "La Fuga" by Simone Pizzi.  **The year is 2193.** You are Alpha-7, a lone soldier trapped deep behind enemy lines in a brutal, futuristic war. With your unit decimated and monstrous bio-mechanical abominations and heavily augmented enemy soldiers hunting you down, your only mission is to escape. Every choice matters as you navigate treacherous environments, manage dwindling resources, and confront not only the horrors of war but also your own fear and doubt.  A mysterious voice on the comms, "Echo," is your only link to the outside, a tactical guide 금액₩who might become something more... or just another voice in the static before the inevitable.  **Features (Current & Planned):** *   **Deeply Immersive Narrative:** Experience a tense story of survival, action, and psychological struggle. *   **Meaningful Choices:** Your decisions directly impact Alpha-7's fate, leading to multiple branching paths and endings. *   **Dynamic Relationship:** Interact with your radio contact, Echo, whose support and an
+**PRESENTAZIONE PUBBLICA DI "CORRIDOR 2193: LAST RUN"**
+
+**ITALIANO:**
+
+**Corridor 2193: Last Run - Un Thriller Interattivo Sci-Fi**
+
+Immergiti nell'atmosfera cupa e disperata di **Corridor 2193: Last Run**, un'avventura testuale interattiva che ti getterà nel cuore di una guerra futuristica brutale. Sviluppato con le moderne tecnologie web (HTML, CSS e JavaScript puro), questo progetto nasce da un racconto originale intitolato "La Fuga" dell'autore Simone Pizzi, e trae profonda ispirazione dall'azione frenetica e dalle ambientazioni claustrofobiche dei classici sparatutto in prima persona degli anni '90, come l'iconico Doom.
+
+**L'anno è il 2193.** Nei panni di Alpha-7, un soldato d'élite rimasto isolato dietro le linee nemiche, la tua unica missione è sopravvivere e trovare una via di fuga. Ogni tua scelta avrà un peso determinante: ti troverai a navigare corridoi metallici intrisi di pericolo, a gestire risorse sempre più scarse e ad affrontare non solo mostruosità biomeccaniche e soldati potenziati, ma anche i tuoi demoni interiori, la paura e il dubbio che attanagliano la mente di un sopravvissuto.
+
+Ad accompagnarti in questa disperata corsa contro il tempo ci sarà "Echo", una voce enigmatica alla radio, il tuo unico contatto con il mondo esterno. Sarà una guida tattica, un flebile barlume di speranza, o forse l'ultimo suono amico che sentirai prima che il silenzio diventi definitivo?
+
+**Corridor 2193: Last Run** mira a offrire una narrazione profonda e coinvolgente, dove le decisioni del giocatore plasmano attivamente il destino del protagonista, portando a molteplici percorsi e finali. L'intenzione dell'autore, Simone Pizzi, è quella di esplorare temi come la sopravvivenza, il costo psicologico della guerra e la natura dell'umanità in circostanze estreme, il tutto avvolto in un'estetica retrò-futuristica che omaggia i capisaldi del genere videoludico.
+
+Preparati a fare scelte difficili. Preparati a fuggire. Preparati per **Corridor 2193: Last Run**.
+
+*(Questa versione è [v0.01], una prima build pubblica che introduce le meccaniche di base e l'inizio della storia. Il progetto è in continua evoluzione.)*
+
+---
+
+**INGLESE:**
+
+**Corridor 2193: Last Run - An Interactive Sci-Fi Thriller**
+
+Immerse yourself in the grim and desperate atmosphere of **Corridor 2193: Last Run**, an interactive text adventure that throws you into the heart of a brutal futuristic war. Developed with modern web technologies (pure HTML, CSS, and JavaScript), this project stems from an original short story titled "La Fuga" by author Simone Pizzi, and draws deep inspiration from the frantic action and claustrophobic environments of classic 1990s first-person shooters, like the iconic Doom.
+
+**The year is 2193.** As Alpha-7, an elite soldier stranded deep behind enemy lines, your sole mission is to survive and find a way out. Every choice you make will carry significant weight: you'll navigate treacherous metallic corridors सफलता된 with danger, manage dwindling resources, and confront not only bio-mechanical monstrosities and augmented enemy soldiers but also your own inner demons—the fear and doubt that plague a survivor's mind.
+
+Accompanying you on this desperate race against time is "Echo," an enigmatic voice on the comms, your only contact with the outside world. Will they be a tactical guide, a faint glimmer of hope, or perhaps the last friendly sound you hear before the silence becomes permanent?
+
+**Corridor 2193: Last Run** aims to deliver a deep and engaging narrative where player decisions actively shape the protagonist's destiny, leading to multiple branching paths and endings. The author's, Simone Pizzi, intention is to explore themes such as survival, the psychological toll of war, and the nature of humanity under extreme circumstances, all wrapped in a retro-futuristic aesthetic that pays homage to a golden era of gaming.
+
+Prepare to make tough choices. Prepare to run. Prepare for **Corridor 2193: Last Run**.
+
+*(This version is [v0.01], an early public build introducing core mechanics and the story's beginning. The project is under active development.)*
+
+---
+
+**Note:**
+*   Ho inserito un riferimento alla versione attuale (`[v0.01]`) che puoi aggiornare man mano.
+*   Ho cercato di mantenere il tono e le intenzioni che hai espresso.
+*   Fammi sapere se vuoi modificare o aggiungere qualcosa a queste presentazioni!
 
 *LOG 16/05/2025*
 ----------------------------------------------------
