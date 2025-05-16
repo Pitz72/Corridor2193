@@ -2,7 +2,7 @@ const storyData = {
     "StartScreen": {
         isTitleScreen: true,
         content: `
-            <h1 class="story-title">LA FUGA</h1>
+            <h1 class="story-title">Corridor 2193: Last Run</h1>
             <p class="story-subtitle">Un racconto interattivo sci-fi di Simone Pizzi.<br/>Ispirato ai classici FPS degli anni '90.</p>
         `,
         choices: [

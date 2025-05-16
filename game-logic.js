@@ -20,12 +20,34 @@ document.addEventListener('DOMContentLoaded', () => {
         previousPassageForDescription: null // Per sapere dove tornare dopo una descrizione
     };
 
-    function showScreen(screenToShow) {
-        console.log(`GAME LOGIC: Mostra Schermata: ${screenToShow.id}`);
-        [storyTitleScreen, passageScreen, descriptionScreen, creditsScreen].forEach(screen => {
-            screen.style.display = (screen === screenToShow) ? 'block' : 'none';
+    function showScreen(screenElementToShow) {
+        console.log(`GAME LOGIC: Tentativo di mostrare Schermata: ${screenElementToShow ? screenElementToShow.id : 'ELEMENTO NULLO'}`);
+        
+        if (!screenElementToShow) {
+            console.error("GAME LOGIC: showScreen chiamata con un elemento nullo!");
+            // Nascondi tutto per sicurezza o mostra un errore generico
+            [storyTitleScreen, passageScreen, descriptionScreen, creditsScreen].forEach(s => {
+                if (s) s.style.display = 'none'; // Controlla se s esiste prima di accedere a style
+            });
+            if (gameFooter) gameFooter.style.display = 'none';
+            // Potresti mostrare un messaggio di errore nel body o in un div apposito
+            document.body.innerHTML = "<p style='color:red; font-size:2em;'>Errore critico nel mostrare la schermata. Controllare la console.</p>";
+            return;
+        }
+
+        const allScreens = [storyTitleScreen, passageScreen, descriptionScreen, creditsScreen];
+        
+        allScreens.forEach(screen => {
+            if (screen) { // Controlla se l'elemento DOM esiste
+                screen.style.display = (screen === screenElementToShow) ? 'block' : 'none';
+            } else {
+                console.warn("GAME LOGIC: Un elemento screen non è stato trovato durante showScreen (probabile ID errato in HTML).");
+            }
         });
-        gameFooter.style.display = (screenToShow === passageScreen || screenToShow === descriptionScreen) ? 'block' : 'none';
+
+        if (gameFooter) {
+             gameFooter.style.display = (screenElementToShow === passageScreen || screenElementToShow === descriptionScreen) ? 'block' : 'none';
+        }
     }
 
     function initializeGame() {
@@ -114,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
             creditsScreen.innerHTML = currentContent; // Inserisce il testo dei crediti
             renderChoicesToArea(currentChoices, creditsScreen, true); // Aggiunge il bottone "Gioca Ancora"
         } else { // Passaggio narrativo normale o uno che restituisce {text, choices}
-            showScreen(passageScreen.id);
+            showScreen(passageScreen);
             let passageHtml = currentContent;
             let passageChoices = currentChoices;
 
