@@ -17,7 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
         currentPassageId: null,
         variables: {},
         history: [], // Cronologia dei passaggi *narrativi* visitati (per undo e logica "return to")
-        previousPassageForDescription: null // Per sapere dove tornare dopo una descrizione
+        previousPassageForDescription: null, // Per sapere dove tornare dopo una descrizione
+        temporaryFlags: {}
     };
 
     function showScreen(screenElementToShow) {
@@ -56,7 +57,8 @@ document.addEventListener('DOMContentLoaded', () => {
             currentPassageId: "StartScreen",
             variables: {},
             history: [],
-            previousPassageForDescription: null
+            previousPassageForDescription: null,
+            temporaryFlags: {}
         };
         renderPassage(gameState.currentPassageId);
     }

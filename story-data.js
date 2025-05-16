@@ -281,6 +281,9 @@ const storyData = {
     "SecondaParte": {
         onEnter: function(gs) {
             gs.variables.protagonistaStress = Math.min(10, (gs.variables.protagonistaStress || 0) + 1); // Stress per il cambio di situazione
+            if (!gs.temporaryFlags) { // <<< AGGIUNGI QUESTO CONTROLLO
+                gs.temporaryFlags = {};
+            }
             if (gs.variables.echoPresente && (gs.variables.echoRapporto || 0) < 1) {
                 // Se Echo è presente ma il rapporto è basso, flag per commento speciale
                 gs.temporaryFlags.echoSilenziosoCommento = true;
@@ -293,7 +296,8 @@ const storyData = {
             if ((gs.variables.protagonistaStress || 0) > 7) {
                 html += "<p>Le mani gli tremavano leggermente, un sintomo che conosceva fin troppo bene. Stava raggiungendo il limite.</p>";
             }
-            if (gs.temporaryFlags.echoSilenziosoCommento) {
+            // Dentro la contentFunction di "SecondaParte"
+            if (gs.temporaryFlags && gs.temporaryFlags.echoSilenziosoCommento) { // <<< RIGA CORRETTA
                 html += `<div class="echo-communication">Echo: Ancora vivo, Alpha-7? Impressionante. O forse solo fortunato. Non fare affidamento sulla fortuna per troppo tempo.</div>`;
                 delete gs.temporaryFlags.echoSilenziosoCommento; // Rimuovi il flag dopo averlo usato
             } else if (gs.variables.echoPresente && (gs.variables.echoRapporto || 0) > 2) {
@@ -488,15 +492,44 @@ const storyData = {
     },
     // Placeholder per i prossimi passaggi del condotto
     "Condotto_BivioPrincipale": {
-        text: "<p>Il condotto principale si allarga leggermente. Senti dei rumori indistinti provenire da più avanti.</p>",
-        choices: [{text:"Continua", target: "UscitaCondotto_A_Placeholder"}] // Placeholder
+        content: "<p>Il condotto principale si allarga leggermente. Senti dei rumori indistinti ma minacciosi provenire da più avanti. L'aria è più viziata qui, sa di metallo surriscaldato e... qualcos'altro, di organico e putrido.</p>",
+        choices: [
+            { text: "Avanza con cautela nel condotto principale.", target: "UscitaCondotto_A_Placeholder" },
+            { text: "Prova a tornare indietro al bivio precedente.", target: "DentroIlCondotto" }
+        ]
     },
     "Condotto_DiramazioneLaterale": {
-        text: "<p>La diramazione è ancora più stretta. Dopo una curva, vedi una grata arrugginita che dà su una stanza poco illuminata.</p>",
-        choices: [{text:"Prova ad aprire la grata", target: "UscitaCondotto_B_Placeholder"}] // Placeholder
+        content: `
+            <p>La diramazione è ancora più stretta, costringendoti a muoverti quasi carponi. Il metallo freddo preme contro la tua armatura. Dopo una curva a gomito, che gratta rumorosamente contro le placche della tua spalla, vedi una grata arrugginita più avanti. Delle flebili luci filtrano attraverso di essa, rivelando i contorni di una stanza poco illuminata, forse un piccolo locale tecnico o un magazzino dimenticato.</p>
+            <p>Senti un leggero ronzio elettrico provenire da oltre la grata.</p>
+        `,
+        choices: [
+            { text: "Esamina più da vicino la grata e prova ad aprirla.", target: "UscitaCondotto_B_Placeholder" },
+            { text: "Questa via è troppo rischiosa/stretta. Torna al bivio principale.", target: "DentroIlCondotto" }
+        ]
     },
-    "UscitaCondotto_A_Placeholder": { text: "<p>PLACEHOLDER: Uscita dal condotto A</p>", choices: []},
-    "UscitaCondotto_B_Placeholder": { text: "<p>PLACEHOLDER: Uscita dal condotto B</p>", choices: []},
+    "UscitaCondotto_A_Placeholder": {
+        content: `
+            <p>Prosegui lungo il condotto principale. Dopo quella che sembra un'eternità passata a strisciare nel buio, intravedi una luce più intensa. È un'altra grata, ma questa sembra condurre direttamente all'esterno o in un'area molto più ampia e illuminata.</p>
+            <p>Purtroppo, senti anche delle voci concitate e il rumore di passi pesanti proprio al di là della grata. Sembra una zona di pattuglia attiva.</p>
+            <p><em>(Sviluppo futuro: opzioni per osservare, creare un diversivo, o tentare un'uscita rischiosa)</em></p>
+        `,
+        choices: [
+            { text: "[PLACEHOLDER] Prova a forzare l'uscita.", target: "credits" }, // Temporaneamente va ai crediti
+            { text: "[PLACEHOLDER] Cerca un'altra via nel condotto.", target: "Condotto_BivioPrincipale" } // Temporaneamente torna indietro
+        ]
+    },
+    "UscitaCondotto_B_Placeholder": {
+        content: `
+            <p>Ti avvicini alla grata della diramazione laterale. È vecchia e corrosa, ma sembra meno robusta di quella principale. Oltre, riesci a distinguere degli scaffali carichi di vecchi componenti elettronici e quello che sembra un terminale di computer inattivo.</p>
+            <p>Il ronzio elettrico è più forte qui, ma non ci sono segni di movimento immediato.</p>
+            <p><em>(Sviluppo futuro: opzioni per forzare la grata silenziosamente, usare il terminale se si trova un modo, o trovare un oggetto utile)</em></p>
+        `,
+        choices: [
+            { text: "[PLACEHOLDER] Tenta di aprire la grata con discrezione.", target: "credits" }, // Temporaneamente va ai crediti
+            { text: "[PLACEHOLDER] Lascia perdere e torna al bivio principale.", target: "DentroIlCondotto" }
+        ]
+    },
     "Scappare_Placeholder": { // Questo andrà rinominato in Scappare
         onEnter: function(gs) {
             // Logica da definire, forse un aumento di stress?
@@ -689,15 +722,44 @@ const storyData = {
     },
     // Placeholder per i prossimi passaggi del condotto
     "Condotto_BivioPrincipale": {
-        text: "<p>Il condotto principale si allarga leggermente. Senti dei rumori indistinti provenire da più avanti.</p>",
-        choices: [{text:"Continua", target: "UscitaCondotto_A_Placeholder"}] // Placeholder
+        content: "<p>Il condotto principale si allarga leggermente. Senti dei rumori indistinti ma minacciosi provenire da più avanti. L'aria è più viziata qui, sa di metallo surriscaldato e... qualcos'altro, di organico e putrido.</p>",
+        choices: [
+            { text: "Avanza con cautela nel condotto principale.", target: "UscitaCondotto_A_Placeholder" },
+            { text: "Prova a tornare indietro al bivio precedente.", target: "DentroIlCondotto" }
+        ]
     },
     "Condotto_DiramazioneLaterale": {
-        text: "<p>La diramazione è ancora più stretta. Dopo una curva, vedi una grata arrugginita che dà su una stanza poco illuminata.</p>",
-        choices: [{text:"Prova ad aprire la grata", target: "UscitaCondotto_B_Placeholder"}] // Placeholder
+        content: `
+            <p>La diramazione è ancora più stretta, costringendoti a muoverti quasi carponi. Il metallo freddo preme contro la tua armatura. Dopo una curva a gomito, che gratta rumorosamente contro le placche della tua spalla, vedi una grata arrugginita più avanti. Delle flebili luci filtrano attraverso di essa, rivelando i contorni di una stanza poco illuminata, forse un piccolo locale tecnico o un magazzino dimenticato.</p>
+            <p>Senti un leggero ronzio elettrico provenire da oltre la grata.</p>
+        `,
+        choices: [
+            { text: "Esamina più da vicino la grata e prova ad aprirla.", target: "UscitaCondotto_B_Placeholder" },
+            { text: "Questa via è troppo rischiosa/stretta. Torna al bivio principale.", target: "DentroIlCondotto" }
+        ]
     },
-    "UscitaCondotto_A_Placeholder": { text: "<p>PLACEHOLDER: Uscita dal condotto A</p>", choices: []},
-    "UscitaCondotto_B_Placeholder": { text: "<p>PLACEHOLDER: Uscita dal condotto B</p>", choices: []},
+    "UscitaCondotto_A_Placeholder": {
+        content: `
+            <p>Prosegui lungo il condotto principale. Dopo quella che sembra un'eternità passata a strisciare nel buio, intravedi una luce più intensa. È un'altra grata, ma questa sembra condurre direttamente all'esterno o in un'area molto più ampia e illuminata.</p>
+            <p>Purtroppo, senti anche delle voci concitate e il rumore di passi pesanti proprio al di là della grata. Sembra una zona di pattuglia attiva.</p>
+            <p><em>(Sviluppo futuro: opzioni per osservare, creare un diversivo, o tentare un'uscita rischiosa)</em></p>
+        `,
+        choices: [
+            { text: "[PLACEHOLDER] Prova a forzare l'uscita.", target: "credits" }, // Temporaneamente va ai crediti
+            { text: "[PLACEHOLDER] Cerca un'altra via nel condotto.", target: "Condotto_BivioPrincipale" } // Temporaneamente torna indietro
+        ]
+    },
+    "UscitaCondotto_B_Placeholder": {
+        content: `
+            <p>Ti avvicini alla grata della diramazione laterale. È vecchia e corrosa, ma sembra meno robusta di quella principale. Oltre, riesci a distinguere degli scaffali carichi di vecchi componenti elettronici e quello che sembra un terminale di computer inattivo.</p>
+            <p>Il ronzio elettrico è più forte qui, ma non ci sono segni di movimento immediato.</p>
+            <p><em>(Sviluppo futuro: opzioni per forzare la grata silenziosamente, usare il terminale se si trova un modo, o trovare un oggetto utile)</em></p>
+        `,
+        choices: [
+            { text: "[PLACEHOLDER] Tenta di aprire la grata con discrezione.", target: "credits" }, // Temporaneamente va ai crediti
+            { text: "[PLACEHOLDER] Lascia perdere e torna al bivio principale.", target: "DentroIlCondotto" }
+        ]
+    },
     "Scappare_Placeholder": { // Questo andrà rinominato in Scappare
         onEnter: function(gs) {
             // Logica da definire, forse un aumento di stress?
