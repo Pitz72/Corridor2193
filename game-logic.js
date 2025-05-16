@@ -123,9 +123,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (passageData.isTitleScreen) {
-            showScreen(storyTitleScreen);
-            storyTitleScreen.innerHTML = currentContent; // Inserisce h1 e p
-            renderChoicesToArea(currentChoices, storyTitleScreen, true); // Aggiunge il bottone
+            console.log("GAME LOGIC: Rilevato isTitleScreen. Chiamo showScreen per storyTitleScreen.");
+            showScreen(storyTitleScreen); // Passa l'elemento DOM
+            
+            console.log("GAME LOGIC: Contenuto per storyTitleScreen (currentContent):", currentContent);
+            storyTitleScreen.innerHTML = currentContent; // Inserisce h1 e p definiti in storyData
+
+            console.log("GAME LOGIC: Chiamata a renderChoicesToArea per storyTitleScreen con scelte:", JSON.stringify(currentChoices));
+            renderChoicesToArea(currentChoices, storyTitleScreen, true); // Aggiunge il bottone "INIZIA L'INCUBO"
+
+            // Verifica dopo l'inserimento
+            if (storyTitleScreen.innerHTML.trim() === "") {
+                console.warn("GAME LOGIC: storyTitleScreen.innerHTML è vuoto dopo l'assegnazione!");
+            } else {
+                console.log("GAME LOGIC: storyTitleScreen.innerHTML ora è:", storyTitleScreen.innerHTML.substring(0, 200) + "..."); // Logga l'inizio dell'HTML
+            }
+            const startButton = storyTitleScreen.querySelector('button.start-button');
+            if (startButton) {
+                console.log("GAME LOGIC: Bottone 'start-button' trovato in storyTitleScreen.");
+            } else {
+                console.warn("GAME LOGIC: ATTENZIONE! Bottone 'start-button' NON trovato in storyTitleScreen dopo renderChoicesToArea.");
+            }
+
         } else if (passageData.isDescription) {
             showScreen(descriptionScreen);
             descriptionTextDiv.innerHTML = currentContent;
