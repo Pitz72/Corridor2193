@@ -1,0 +1,292 @@
+/* --- LA FUGA - STILE PERSONALIZZATO (Vanilla JS Edition) --- */
+
+/* --- VARIABILI COLORE E FONT --- */
+:root {
+    --font-main: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --font-title: 'Orbitron', sans-serif;
+
+    --bg-main: #0a0a0a;
+    --bg-game-container: #131316; /* Leggermente diverso dal passaggio per profondità */
+    --bg-passage-area: #1a1a1e; /* Sfondo per l'area del testo del passaggio */
+    --text-main: #e8e8e8;
+    --text-secondary: #b0b0b0;
+    --text-link-choice: #20c0f0;
+    --text-link-choice-hover: #80e0ff;
+    --bg-choice: #282838; /* Sfondo per bottoni scelta più scuro */
+    --bg-choice-hover: #38384d;
+    --accent-danger: #d03030; /* Rosso più acceso */
+    --accent-warning: #f0a020;
+    --accent-tech: #40ff60;   /* Verde più brillante */
+    --accent-ui: #4a7096;
+    --border-color: #2f2f35;
+    --shadow-color: rgba(0,0,0,0.7);
+}
+
+/* Importa Font da Google Fonts (puoi anche linkarli in HTML) */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+/* --- RESET E GLOBALI --- */
+html { box-sizing: border-box; }
+*, *:before, *:after { box-sizing: inherit; }
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    font-family: var(--font-main);
+    font-weight: 300;
+    line-height: 1.7;
+    margin: 0;
+    padding: 20px;
+    font-size: 17px; /* Aumentato leggermente per leggibilità */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+}
+
+#game-container {
+    width: 100%;
+    max-width: 800px; /* Aumentato un po' */
+    background-color: var(--bg-game-container);
+    border: 1px solid var(--border-color);
+    padding: 20px 30px 30px 30px; /* Meno padding sopra */
+    border-radius: 4px;
+    box-shadow: 0 10px 35px var(--shadow-color);
+}
+
+/* --- AREE SCHERMATA --- */
+.screen { /* Classe comune per tutte le aree principali */
+    /* display: none; sarà gestito da JS */
+}
+
+/* --- SCHERMATA INIZIALE --- */
+#story-title-screen {
+    text-align: center;
+    padding: 30px 0;
+}
+
+#story-title-screen h1.story-title {
+    font-family: var(--font-title);
+    font-size: clamp(3em, 10vw, 5em);
+    color: var(--accent-danger);
+    text-shadow: 3px 3px 0px #000, 0 0 20px rgba(200, 32, 32, 0.7);
+    margin-bottom: 0.15em;
+    letter-spacing: 2px;
+    line-height: 1.1;
+}
+
+#story-title-screen p.story-subtitle {
+    font-size: clamp(1em, 3vw, 1.25em);
+    color: var(--text-secondary);
+    margin-bottom: 50px;
+    font-style: italic;
+    line-height: 1.4;
+}
+
+/* --- PASSAGGIO CORRENTE --- */
+#passage-screen {
+    background-color: var(--bg-passage-area);
+    padding: 20px;
+    border-radius: 3px;
+    border: 1px solid var(--border-color);
+}
+
+#passage-text h1, #passage-text h2, #passage-text h3 {
+    font-family: var(--font-title);
+    color: var(--text-link-choice);
+    border-bottom: 1px solid var(--accent-ui);
+    padding-bottom: 0.4em;
+    margin-top: 0;
+    margin-bottom: 1em;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+#passage-text h1 { font-size: 1.8em; }
+#passage-text h2 { font-size: 1.5em; }
+#passage-text h3 { font-size: 1.3em; }
+
+#passage-text p {
+    margin-top: 0;
+    margin-bottom: 1.2em;
+}
+#passage-text p:last-child {
+    margin-bottom: 0;
+}
+
+/* --- BOTTONI SCELTA --- */
+#passage-choices, #description-choices, #credits-screen .choices-container, #story-title-screen .choices-container {
+    margin-top: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+button.choice-button, button.start-button, button.credits-button {
+    display: block;
+    width: 100%;
+    padding: 13px 20px;
+    background-color: var(--bg-choice);
+    color: var(--text-link-choice);
+    font-family: var(--font-main);
+    font-size: 1.0em; /* Leggermente più piccolo per scelte multiple */
+    font-weight: bold;
+    border: 1px solid var(--accent-ui);
+    border-radius: 3px;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.15s ease-out, color 0.15s ease-out, border-color 0.15s ease-out, transform 0.1s ease-out;
+}
+
+button.choice-button:hover, button.start-button:hover, button.credits-button:hover {
+    background-color: var(--bg-choice-hover);
+    color: var(--text-link-choice-hover);
+    border-color: var(--text-link-choice-hover);
+    transform: translateX(5px);
+}
+
+button.start-button { /* Stile specifico per il bottone "Inizia"  */
+    background-color: var(--accent-danger);
+    color: var(--text-main);
+    border-color: var(--text-main);
+    font-family: var(--font-title);
+    font-size: clamp(1.3em, 4vw, 1.7em);
+    text-align: center;
+    text-transform: uppercase;
+    box-shadow: 0 0 10px var(--accent-danger);
+}
+button.start-button:hover {
+    background-color: var(--text-main);
+    color: var(--accent-danger);
+    border-color: var(--accent-danger);
+    box-shadow: 0 0 15px var(--accent-danger);
+    transform: scale(1.03) translateX(0);
+}
+
+/* --- MESSAGGI DI ECHO --- */
+.echo-communication {
+    display: block;
+    border-left: 4px solid var(--accent-tech);
+    padding: 10px 15px;
+    margin: 1.5em 0;
+    background-color: rgba(48, 240, 80, 0.04);
+    font-style: italic;
+    color: #c0ffc0;
+    border-radius: 0 3px 3px 0;
+}
+.echo-communication::before {
+    content: "ECHO ///";
+    font-weight: bold;
+    margin-right: 10px;
+    color: var(--accent-tech);
+    font-style: normal;
+}
+
+/* --- PASSAGGI DESCRITTIVI --- */
+#description-screen {
+    background-color: rgba(64,96,128, 0.07); /* Sfondo leggermente bluastro */
+    border-left: 4px solid var(--accent-ui);
+    padding: 20px;
+    margin: 1em 0;
+    font-size: 0.95em;
+    color: var(--text-secondary);
+    border-radius: 2px;
+}
+#description-text p:last-child {
+    margin-bottom: 0;
+}
+#description-choices button.choice-button {
+    font-weight: normal;
+    font-size: 0.95em;
+    padding: 8px 12px;
+    background-color: transparent;
+    border-color: var(--accent-ui);
+    color: var(--accent-ui);
+}
+#description-choices button.choice-button:hover {
+    background-color: var(--bg-choice);
+    border-color: var(--text-link-choice-hover);
+    color: var(--text-link-choice-hover);
+}
+
+/* Link inline dentro i passaggi (non scelte principali) */
+button.inline-link {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit; /* Eredita font dal contesto */
+    font-weight: bold; /* Rendili leggermente più evidenti */
+    color: var(--text-link-choice);
+    text-decoration: underline;
+    text-decoration-style: dashed;
+    text-decoration-color: var(--accent-ui);
+    cursor: pointer;
+    transition: color 0.15s ease-out, text-decoration-color 0.15s ease-out;
+}
+button.inline-link:hover {
+    color: var(--text-link-choice-hover);
+    text-decoration-color: var(--text-link-choice-hover);
+}
+
+
+/* --- CREDITI --- */
+#credits-screen {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 0.9em;
+}
+#credits-screen h2 {
+    font-family: var(--font-title);
+    color: var(--accent-danger);
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+#credits-screen p {
+    margin-bottom: 0.5em;
+}
+#credits-screen .choices-container button.credits-button { /* Stile specifico per bottone crediti */
+    /* Simile a start-button ma può essere diverso se vuoi */
+    background-color: var(--accent-ui);
+    color: var(--text-main);
+    border-color: var(--text-main);
+    font-family: var(--font-title);
+    text-align: center;
+}
+#credits-screen .choices-container button.credits-button:hover {
+    background-color: var(--text-main);
+    color: var(--accent-ui);
+    border-color: var(--accent-ui);
+}
+
+/* --- FOOTER / CONTROLLI --- */
+#game-footer {
+    margin-top: 30px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+    text-align: right;
+}
+#game-footer button {
+    background: var(--bg-choice);
+    color: var(--text-secondary);
+    border: 1px solid var(--accent-ui);
+    padding: 8px 15px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.9em;
+    margin-left: 10px;
+}
+#game-footer button:hover {
+    background: var(--bg-choice-hover);
+    color: var(--text-link-hover);
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background-image: linear-gradient(to right, transparent, var(--border-color), transparent);
+    margin: 2em 0;
+}
