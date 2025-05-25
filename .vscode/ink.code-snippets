@@ -1,0 +1,137 @@
+{
+    "Knot": {
+        "prefix": "knot",
+        "body": [
+            "=== $1 ===",
+            "$2",
+            "* [$3] -> $4",
+            "$0"
+        ],
+        "description": "Create a new knot"
+    },
+    "Stitch": {
+        "prefix": "stitch",
+        "body": [
+            "= $1",
+            "$2",
+            "* [$3] -> $4",
+            "$0"
+        ],
+        "description": "Create a new stitch"
+    },
+    "Choice": {
+        "prefix": "choice",
+        "body": [
+            "* [$1] $2",
+            "    $3",
+            "    -> $4"
+        ],
+        "description": "Create a choice"
+    },
+    "Sticky Choice": {
+        "prefix": "+choice",
+        "body": [
+            "+ [$1] $2",
+            "    $3",
+            "    -> $4"
+        ],
+        "description": "Create a sticky choice"
+    },
+    "Conditional Choice": {
+        "prefix": "choiceif",
+        "body": [
+            "* {$1} [$2] $3",
+            "    $4",
+            "    -> $5"
+        ],
+        "description": "Create a conditional choice"
+    },
+    "Variable Declaration": {
+        "prefix": "var",
+        "body": [
+            "VAR $1 = $2"
+        ],
+        "description": "Declare a variable"
+    },
+    "Logic Block": {
+        "prefix": "logic",
+        "body": [
+            "~ $1"
+        ],
+        "description": "Create a logic block"
+    },
+    "Conditional Text": {
+        "prefix": "if",
+        "body": [
+            "{$1:$2}"
+        ],
+        "description": "Create conditional text"
+    },
+    "Alternative Text": {
+        "prefix": "alt",
+        "body": [
+            "{$1|$2}"
+        ],
+        "description": "Create alternative text"
+    },
+    "Echo Dialog": {
+        "prefix": "echo",
+        "body": [
+            "<color=cyan>**ECHO:**</color> \"$1\""
+        ],
+        "description": "ECHO dialog for Corridor2193"
+    },
+    "Mad Dog Dialog": {
+        "prefix": "maddog",
+        "body": [
+            "<color=orange>**{nome_protagonista}:**</color> $1"
+        ],
+        "description": "Mad Dog dialog for Corridor2193"
+    },
+    "Thought": {
+        "prefix": "thought",
+        "body": [
+            "<color=orange>**{nome_protagonista}:**</color> *Pensiero* '$1'"
+        ],
+        "description": "Character thought for Corridor2193"
+    },
+    "Health Check": {
+        "prefix": "healthcheck",
+        "body": [
+            "{salute <= 25: La ferita brucia come il fuoco dell'inferno. - else: {salute <= 50: Il dolore è costante ma sopportabile. - else: Ti senti ancora in forma.}}"
+        ],
+        "description": "Health status check for Corridor2193"
+    },
+    "Ammo Check": {
+        "prefix": "ammocheck",
+        "body": [
+            "Munizioni pistola: {munizioni_pistola_silenziata}"
+        ],
+        "description": "Ammo check for Corridor2193"
+    },
+    "Comment Section": {
+        "prefix": "section",
+        "body": [
+            "// === $1 ===",
+            "$0"
+        ],
+        "description": "Create a section comment"
+    },
+    "Function": {
+        "prefix": "function",
+        "body": [
+            "=== function $1($2) ===",
+            "~ return $3"
+        ],
+        "description": "Create a function"
+    },
+    "Gather": {
+        "prefix": "gather",
+        "body": [
+            "- $1",
+            "  $2",
+            "  -> $3"
+        ],
+        "description": "Create a gather point"
+    }
+}

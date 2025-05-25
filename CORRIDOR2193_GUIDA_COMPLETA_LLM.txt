@@ -1,0 +1,1232 @@
+================================================================================
+                    CORRIDOR 2193: THE LAST RUN
+                 GUIDA COMPLETA PER RISCRITTURA LLM
+================================================================================
+
+1. INDICAZIONI GENERALI SUL PROGETTO
+================================================================================
+
+TITOLO: Corridor 2193: The Last Run
+GENERE: Interactive Fiction - Dark Military Sci-Fi
+ISPIRAZIONE: Doom (1993) + Aliens + Cyberpunk
+TECNOLOGIE: Ink Language + JavaScript + HTML5/CSS3
+PIATTAFORME: Terminale Ink + Browser Web Moderni
+
+TRAMA PRINCIPALE:
+Storia interattiva del Sergente Rex "Mad Dog" Ransome, marine coloniale in
+missione di infiltrazione su una stazione aliena per fermare il Progetto
+Thanatos - un'arma biologica che minaccia l'umanità. Accompagnato dall'AI
+Echo, deve navigare scelte tattiche complesse in un ambiente ostile.
+
+PERSONAGGI PRINCIPALI:
+- Rex "Mad Dog" Ransome: Protagonista, marine veterano con traumi del passato
+- Echo: AI companion, voce metallica ma sorprendentemente "umana"
+- Dr. Meridian: Antagonista principale, scienziato corrotto del Progetto Thanatos
+
+AMBIENTAZIONE:
+Complesso alieno "Tartarus" - stazione di ricerca biomeccanica dove si sviluppa
+il Progetto Thanatos. Atmosfera claustrofobica, corridoi metallici, laboratori
+horror, creature biomeccaniche.
+
+TEMI CENTRALI:
+- Scelte morali in situazioni estreme
+- Trauma da combattimento e PTSD
+- Umanità vs evoluzione forzata
+- Sacrificio per il bene comune
+- Rapporto uomo-macchina (Mad Dog/Echo)
+
+================================================================================
+2. COME ERA IMPOSTATA LA VECCHIA VERSIONE
+================================================================================
+
+SISTEMA ORIGINALE (PROBLEMATICO):
+- Sistema RPG numerico complesso con salute a punti (100, -20, +15, ecc.)
+- 5 tipi di armi diverse con munizioni precise
+- 45+ chiamate RANDOM() per eventi casuali
+- Meccaniche di combattimento dettagliate ma incompatibili con Ink
+- Sistema inventario con oggetti multipli
+- Calcoli matematici complessi per danni e successi
+
+STRUTTURA TECNICA ORIGINALE:
+- File monolitico di 137KB (2633 linee)
+- Variabili numeriche multiple per ogni aspetto
+- Logica condizionale eccessivamente complessa
+- Sezioni che terminavano senza divert appropriati ("loose ends")
+- Uso improprio di operatori Ink (+=, stringhe, ecc.)
+
+PROBLEMI SPECIFICI IDENTIFICATI:
+- Doppia parentesi graffa di chiusura (errore sintassi)
+- VAR inventario = () (sintassi non valida)
+- Uso di += su stringhe (non supportato)
+- Sezioni mancanti referenziate ma non implementate
+- Variabili temporanee con nomi conflittuali
+- Logica contraddittoria nelle assegnazioni
+
+================================================================================
+3. CRITICITÀ DELLA VECCHIA VERSIONE RISPETTO AD INK-FRIENDLY
+================================================================================
+
+PROBLEMI FONDAMENTALI:
+
+A) FILOSOFIA SBAGLIATA:
+- Ink è per NARRATIVA, non per meccaniche RPG complesse
+- Il sistema originale trattava Ink come un linguaggio di programmazione
+- Focus sui numeri invece che sulla storia
+
+B) SINTASSI INCOMPATIBILE:
+- Uso di costrutti non supportati da Ink
+- Gestione errata delle variabili temporanee
+- Mancanza di punti di fine flusso appropriati
+
+C) COMPLESSITÀ ECCESSIVA:
+- Troppi sistemi paralleli (salute, munizioni, inventario, morale, ecc.)
+- Calcoli matematici che rallentano la narrativa
+- Casualità eccessiva che rende il gioco imprevedibile
+
+D) PROBLEMI STRUTTURALI:
+- File troppo grande e monolitico
+- Sezioni incomplete o mal collegate
+- Flusso narrativo interrotto da meccaniche
+
+E) DEBUGGING IMPOSSIBILE:
+- Errori difficili da tracciare
+- Sistema troppo complesso per test rapidi
+- Interdipendenze che causano effetti a cascata
+
+LEZIONI APPRESE:
+- Ink funziona meglio con stati descrittivi che numerici
+- Le scelte devono essere basate su conseguenze logiche, non casuali
+- La semplicità è fondamentale per la manutenibilità
+- Ogni sezione deve avere un punto di uscita chiaro
+
+================================================================================
+4. ISTRUZIONI GENERALI PER COSTRUZIONE VERSIONE ADEGUATA (LLM)
+================================================================================
+
+PRINCIPI FONDAMENTALI:
+
+A) FILOSOFIA INK-FRIENDLY:
+- Testo PRIMA, logica DOPO
+- Stati descrittivi invece di numeri
+- Conseguenze logiche invece di casualità
+- Flusso narrativo sempre in avanti
+
+B) STRUTTURA RACCOMANDATA:
+
+VARIABILI DI STATO (MASSIMO 10):
+VAR condizione_fisica = "perfetta"     // "ferita", "critica", "morente"
+VAR arma_stealth = "disponibile"       // "usata", "persa"
+VAR arma_combattimento = "piena"       // "limitata", "vuota"
+VAR granate_speciali = 2               // Numero semplice
+VAR adrenalina_sintetica = 2           // Risorsa critica per plot
+VAR rapporto_echo = 0                  // Relazione con AI (-2 a +3)
+VAR allerta_generale = 0               // Livello allarme (0-5)
+VAR inventario = ""                    // Lista semplice come stringa
+VAR conosce_thanatos = false           // Flag plot principale
+VAR meridian_eliminato = false         // Flag antagonista
+
+FUNZIONI HELPER (MASSIMO 5):
+=== function descrivi_condizione_fisica() ===
+=== function successo_stealth() ===
+=== function successo_combattimento() ===
+=== function livello_allerta() ===
+=== function uso_adrenalina_giustificato() ===
+
+C) REGOLE SINTATTICHE CRITICHE:
+
+INIZIO OBBLIGATORIO:
+-> nome_knot_iniziale
+
+FINE SEZIONI:
+Ogni sezione DEVE terminare con:
+- -> altro_knot (divert)
+- * [scelta] (opzioni)
+- -> DONE (fine intenzionale)
+- -> END (fine storia)
+
+GESTIONE SCELTE:
+* [Testo scelta] Conseguenza immediata -> destinazione
++ [Scelta sticky] Per scelte ripetibili
+* {condizione} [Scelta condizionale] Solo se condizione vera
+
+EVITARE ASSOLUTAMENTE:
+- RANDOM() (usare logica basata su stato)
+- Calcoli matematici complessi
+- Variabili temporanee con nomi lunghi
+- Sezioni senza uscita
+- Operatori non supportati (+=, stringhe)
+
+D) PATTERN VINCENTI:
+
+COMBATTIMENTO NARRATIVO:
+{condizione_fisica == "perfetta":
+    Il tuo addestramento prevale. Vittoria netta.
+    ~ condizione_fisica = "ferita"
+- else:
+    Le ferite ti rallentano. Scontro difficile.
+    ~ condizione_fisica = "critica"
+}
+
+GESTIONE RISORSE:
+{arma_stealth == "disponibile":
+    Colpo silenzioso perfetto.
+    ~ arma_stealth = "usata"
+- else:
+    Devi improvvisare senza arma stealth.
+}
+
+PROGRESSIONE LOGICA:
+{datapad_recuperato and conosce_thanatos:
+    Ora hai tutte le informazioni necessarie.
+    -> finale_informato
+- else:
+    Devi ancora scoprire la verità.
+    -> continua_esplorazione
+}
+
+E) STRUTTURA FILE RACCOMANDATA:
+
+1. DICHIARAZIONI VARIABILI (righe 1-50)
+2. FUNZIONI HELPER (righe 51-150)
+3. KNOT INIZIALE con -> (riga 151)
+4. SEZIONI NARRATIVE PRINCIPALI (righe 152-800)
+5. FINALI MULTIPLI (righe 801-1000)
+6. -> END finale (ultima riga)
+
+F) TESTING CONTINUO:
+- Compila dopo ogni sezione aggiunta
+- Testa percorsi principali regolarmente
+- Verifica che non ci siano loose ends
+- Mantieni file sotto 1500 righe se possibile
+
+================================================================================
+5. TUTTI I TESTI NARRATIVI E ORGANIZZAZIONE STORIA
+================================================================================
+
+================================================================================ 5. TUTTI I TESTI NARRATIVI E ORGANIZZAZIONE STORIA (Versione Estesa e Arricchita)
+STRUTTURA NARRATIVA COMPLETA:
+
+================================================================================ A) INTRODUZIONE E SETUP (Knots: Risveglio_Buio, Briefing_Iniziale)
+RISVEGLIO_BUIO:
+"Buio. Un buio catramoso, denso, che ti soffoca quasi. Il sapore acre del sangue rappreso e del metallo ti impasta la lingua.  Il tuo cuore non batte, martella, una furia intrappolata nella gabbia toracica, un ritmo selvaggio che rimbomba nelle orecchie come l'eco di un'esplosione lontana.  Dove... dove diavolo sei? La coscienza emerge a fatica da un abisso melmoso, trascinando con sé frammenti taglienti di memoria: il rombo assordante del trasporto coloniale, la discesa incandescente attraverso la stratosfera aliena, il grido strozzato di qualcuno... e poi, il nulla. Un vuoto nero, freddo, inghiottitoio." 
+
+
+ECHO INTRODUCTION:
+"'Echo a Mad Dog... rispondi... Sergente, riesce a sentirmi?' La voce è un bisturi di ghiaccio sonoro, metallica, inequivocabilmente artificiale, eppure increspata da una strana, quasi impercettibile nota... di apprensione?  Lentamente, come un arto addormentato percorso da spilli, la sensazione ritorna nelle tue membra.  Un dolore sordo pulsa dietro gli occhi. L'armatura da combattimento ti avvolge, pesante, costrittiva, ma stranamente rassicurante nella sua opprimente familiarità.  È ancora lì, con te."
+
+
+BRIEFING_INIZIALE:
+"Il tanfo di ozono bruciato, acre come acido, e di disinfettante chimico – un odore che urla 'sterilità forzata' – ti artiglia le narici, facendoti tossire.  Luci d'emergenza rosse pulsano con una lentezza esasperante, cicliche e sinistre, come un cuore morente che dipinge macabri affreschi di sangue sui corridoi brutalisti di questo maledetto, fottuto complesso alieno.  Ogni superficie metallica sembra sudare una condensa oleosa. 'Sei nel Settore Theta-7, Sergente,' conferma Echo, la sua voce ora più nitida, 'punto di inserzione... o meglio, di schianto.'" 
+
+
+MISSIONE ECHO:
+"'Il nostro obiettivo primario, Sergente, resta invariato: il Laboratorio di Bio-Ingegneria Avanzata, nome in codice 'Tartarus'.' La voce di Echo è priva di inflessioni, ma la gravità del messaggio è palpabile.  'I nostri ordini sono di recuperare, con ogni mezzo necessario, i dati completi sul Progetto 'Thanatos'. L'intelligence sospetta, con un grado di probabilità che sfiora la certezza, che loro stiano sviluppando un agente biologico di nuova generazione, capace non solo di annientare intere colonie umane, ma di riscrivere la vita stessa a loro immagine. Un'estinzione programmata.'" 
+
+COLLEGAMENTO: Questa sezione stabilisce atmosfera, personaggi e obiettivi.
+Porta a -> Primi_Ostacoli
+
+================================================================================ B) PRIMI OSTACOLI E SCELTE TATTICHE (Knot: Primi_Ostacoli)
+SETUP ATMOSFERICO:
+"Serri la presa sul fucile d'assalto 'Peacemaker', il suo metallo freddo e liscio un'estensione quasi organica della tua volontà indurita da mille battaglie.  Il peso dell'arma è un macigno confortante. L'aria qui è viziata, stagnante, pregna dell'odore acre e metallico di circuiti bruciati, un aroma che si mescola subdolamente a qualcos'altro… un sentore organico, dolciastro e vagamente putrido, come carne lasciata a marcire al sole alieno." 
+
+PRIMO INCONTRO:
+"Un corridoio lungo e scarsamente illuminato si srotola davanti a te come la gola di una bestia d'acciaio.  Le poche luci funzionanti gettano ombre danzanti e ingannevoli. In lontananza, quasi al limite dell'udibile, percepisci il clangore ritmico, inesorabile, di passi pesanti. E poi, gutturali ringhii, suoni che non appartengono a nessuna creatura terrestre conosciuta.  'Mad Dog, attività ostile confermata,' la voce di Echo è un sussurro urgente nel tuo auricolare. 'Rilevo due forme di vita ostili, designazione 'Stalker', in pattuglia di routine nel corridoio principale.  Attenzione, Sergente: i loro sensori acustici sono estremamente potenziati. Ci sentirebbero respirare a questa distanza.'" 
+
+
+
+SCELTE PRINCIPALI:
+
+[Furtività Brutale] "Vedo un condotto di manutenzione sulla sinistra. Stretto, buio, ma potrebbe permettermi di aggirarli senza far rumore." (Evita il confronto diretto)
+[Aggressione Controllata] "Posso provare a tendergli un'imboscata. Un colpo preciso per ciascuno, prima che capiscano cosa li ha colpiti." (Elimina gli Stalker silenziosamente)
+[Distrazione Tecnologica] "Ho una granata EMP. Potrebbe friggere i loro sensori abbastanza a lungo da darmi un vantaggio o permettermi di sgattaiolare." (Disabilita i sensori, consuma risorsa)
+COLLEGAMENTO: Ogni scelta porta a percorsi diversi che convergono in Bivio_Centrale
+
+================================================================================ C) PERCORSO STEALTH - CONDOTTO (Knots: Scelta_Condotto, Condotto_Gremlin)
+CONDOTTO_INGRESSO:
+"Con un grugnito soffocato, ti infili nello stretto, quasi soffocante, passaggio metallico.  L'aria qui dentro è un miasma stantio di polvere vecchia di secoli, olio motore rancido e, di nuovo, quell'inquietante odore dolciastro, più intenso ora, che ti stringe lo stomaco e ti ricorda inequivocabilmente il sangue versato.  Avanzi a fatica, centimetro dopo centimetro, la corazza che stride e geme contro le pareti anguste, ogni suono un potenziale allarme mortale." 
+
+
+INCONTRO_GREMLIN:
+"Mentre ti trascini nell'oscurità umida, una forma guizzante cattura la tua attenzione. Una creatura che non avevi mai visto prima, né nei peggiori incubi indotti dalla febbre da giungla, sta rovistando con frenesia tra componenti elettronici scoperti in una nicchia del condotto.  È piccola, non più grande di un grosso ratto terrestre, ma la sua morfologia è un abominio biomeccanico: un corpo segmentato da insettoide, lucido e chitinoso, sorretto da multiple zampe sottili come aghi chirurgici, e una testa bulbosa da cui sporgono lenti rosse multiple, brillanti di una luce innaturale e curiosa."  Accanto ad essa, un datapad luccica debolmente.
+
+ECHO_ANALISI:
+"'Sergente, quella è una forma di vita silicio-organica di basso livello, probabilmente uno spazzino tecnologico,' commenta Echo, la sua voce increspata da un tono che potresti definire... scientificamente disgustato.  'Designazione provvisoria: 'Gremlin dei Circuiti'. Non dovrebbe costituire una minaccia seria singolarmente, ma state attento: queste specie tendono a muoversi in sciami se allertate.  E quel datapad... potrebbe contenere informazioni utili sulla struttura o, chissà, sul Progetto Thanatos.'" 
+
+
+SCELTE_GREMLIN:
+
+[Rischio Calcolato] "Tento di afferrare rapidamente il datapad. Potrei sorprenderlo." (Rischioso, potrebbe allertarlo)
+[Eliminazione Discreta] "Meglio eliminare silenziosamente quella cosa, poi prendere il datapad con calma." (Più sicuro, richiede precisione)
+[Prudenza Estrema] "Non vale il rischio per ora. Cerco l'uscita di questo dannato cunicolo." (Lascia perdere il datapad e il Gremlin)
+COLLEGAMENTO: Successo/fallimento influenza allerta_generale e datapad_recuperato.
+Porta a -> Bivio_Centrale
+
+================================================================================ D) PERCORSO COMBATTIMENTO (Knots: Scelta_Stealth, Scelta_EMP)
+STEALTH_SETUP:
+"Ti appiattisci contro il muro freddo e umido, il metallo che trasmette un brivido attraverso la corazza, cercando di fonderti con le ombre instabili del corridoio.  I due Stalker avanzano con una lentezza predatoria, le loro teste corazzate che si muovono a scatti nervosi, i multipli sensori ottici rossi che pulsano come carboni ardenti, scandagliando ogni anfratto dell'ambiente con meticolosa ostilità.  Per ora, non sembrano aver percepito la tua presenza. Il tuo respiro è sospeso, il cuore un tamburo silenzioso." 
+
+
+STALKER_DESCRIZIONE:
+"Sono incubi biomeccanici alti ben oltre i due metri, un'orrenda fusione di esoscheletro chitinoso, lucido e nero come ossidiana, rinforzato con placche metalliche rovinate e segnate da impatti precedenti.  Le loro braccia, sproporzionatamente lunghe, terminano in artigli affilati come rasoi, capaci di squarciare l'acciaio. I sensori rossi multipli sulla testa priva di volto pulsano ritmicamente, tradendo una percezione aliena e letale.  Sono, senza dubbio, macchine da guerra viventi, create per cacciare e uccidere."
+
+EMP_ALTERNATIVA:
+"Con un movimento fluido, estrai la granata EMP. Il sibilo dell'attivazione è quasi impercettibile. La lanci. Un istante dopo, il corridoio è inondato da un lampo accecante di luce azzurra, seguito da un crepitio di scariche elettrostatiche.  Gli Stalker barcollano visibilmente, emettendo stridii metallici distorti. I loro sensori ottici friggono e si spengono, i sistemi neurologici artificiali temporaneamente sovraccaricati, lasciandoli ciechi e disorientati.  È il momento di agire, e devi farlo in fretta, prima che si riprendano." 
+
+
+CONSEGUENZE_COMBATTIMENTO:
+
+Successo stealth: Gli Stalker cadono con sibili sommessi, pozze d'olio scuro che si allargano sotto di loro. Il silenzio è preservato.
+Combattimento aperto: Il ruggito del tuo fucile d'assalto, i loro stridii di dolore e rabbia. Il rumore attirerà sicuramente attenzioni indesiderate.
+EMP: I nemici sono temporaneamente inermi, una facile preda, ma hai consumato una risorsa preziosa e non sai quando ne troverai un'altra.
+COLLEGAMENTO: Risultati influenzano condizione_fisica e allerta_generale.
+Porta a -> Bivio_Centrale
+
+================================================================================ E) BIVIO CENTRALE E PROGRESSIONE (Knot: Bivio_Centrale)
+CONVERGENZA:
+"Emergi in un'area decisamente più ampia, una sorta di hub centrale del complesso, forse una piazzaforte o un nodo di smistamento.  Il soffitto è più alto, perso nell'oscurità, e corridoi si diramano in tre direzioni principali, ognuno un invito oscuro verso l'ignoto. L'illuminazione qui è più stabile, fornita da pannelli luminescenti verdastri incastonati nelle pareti, ma l'atmosfera non è meno inquietante; anzi, il silenzio è più pesante, carico di aspettative." 
+
+ECHO_ORIENTAMENTO:
+"'Analisi strutturale preliminare dell'area completata, Sergente,' annuncia Echo, la sua voce una fredda rassicurazione nel tuo orecchio.  'Stando ai dati frammentari che ho potuto recuperare, il percorso a sinistra conduce ai Depositi e a quella che sembra un'Armeria. Dritto davanti a noi si estende il Settore Residenziale, o ciò che ne resta. Alla nostra destra, i Laboratori Secondari.  Tutti i percorsi sembrano convergere, in ultima analisi, verso la sezione designata 'Tartarus', ma è logico presumere che presenteranno livelli di minaccia e opportunità differenti.'" 
+
+
+SCELTE_STRATEGICHE:
+
+[Rifornimenti e Rischi] "I Depositi. Potrei trovare munizioni, medikit, forse qualcosa di più potente. Ma un'armeria è sempre ben difesa." (Possibili rifornimenti, probabile presenza di droni di sicurezza o guardie più coriacee)
+[La Via Più Lunga?] "Il Settore Residenziale. Potrebbe essere un percorso più lungo, ma forse meno pattugliato. La gente viveva lì... o ci provava." (Percorso potenzialmente più sicuro ma più lungo, possibilità di trovare log o informazioni personali)
+[Diretto e Pericoloso] "I Laboratori Secondari. Sembra la via più diretta verso l'obiettivo. Ma 'laboratori' qui dentro significa solo una cosa: esperimenti, creature." (Percorso più rapido ma con alta probabilità di incontrare creature sperimentali o pericoli biologici)
+COLLEGAMENTO: Ogni percorso ha sfide uniche ma converge in Avvicinamento_Tartarus
+
+================================================================================ F) PERCORSI INTERMEDI (Knots: Depositi, Residenziale, Laboratori)
+DEPOSITI:
+"L'aria nell'armeria del complesso è fredda, quasi gelida, e satura dell'odore di solventi per armi e metallo lavorato.  Scaffali metallici, alcuni rovesciati e saccheggiati, si ergono come scheletri d'acciaio, carichi di equipaggiamento militare e scientifico dall'aspetto alieno e minaccioso. Ma non sei solo. Senti distintamente il ronzio acuto e caratteristico di droni di sicurezza in pattugliamento attivo, le loro luci di ricerca che tagliano l'oscurità come lame.  'Confermo, Sergente,' interviene Echo, 'rilevo tre droni da combattimento classe 'Guardian'. Armamento pesante, corazzatura significativa.  Tuttavia, se riuscissi a neutralizzarli, l'accesso a questi rifornimenti potrebbe rivelarsi... prezioso.'" 
+
+
+RESIDENZIALE:
+"Ti addentri negli alloggi destinati al personale. Corridoi più stretti e angusti si snodano come un labirinto claustrofobico, fiancheggiati da porte di camere sigillate ermeticamente, molte delle quali ammaccate o sfondate dall'interno. L'atmosfera qui è spettrale, un silenzio innaturale rotto solo dal gocciolio occasionale di liquidi sconosciuti.  Senti distintamente che qui è successo qualcosa di terribile, un'esplosione di violenza inimmaginabile.  Macchie scure e incrostate, inequivocabilmente sangue, imbrattano i muri e il pavimento. Profondi graffi solcano le pareti metalliche, come se qualcosa di enorme e furioso avesse cercato disperatamente una via di fuga." 
+
+
+LABORATORI_SECONDARI:
+"Entri in quelli che sembrano laboratori di ricerca preliminare, o forse aree di quarantena. Vasche di coltura più piccole, molte infrante e svuotate, punteggiano le stanze. Strumentazione aliena complessa e incomprensibile giace sparsa, a volte vandalizzata.  L'odore è un assalto ai sensi: nauseabondo, un cocktail rivoltante di carne in decomposizione, formaldeide e sostanze chimiche sconosciute che ti bruciano la gola.  Figure indistinte, creature sperimentali incomplete o fallite, si muovono furtivamente nelle ombre più profonde, i loro gemiti sommessi e i loro movimenti scattosi sono un preludio agghiacciante a ciò che ti aspetta a Tartarus." 
+
+
+INCONTRI_SPECIFICI:
+
+Depositi: Droni da combattimento pesanti, torrette automatiche, ma la possibilità concreta di recuperare munizioni speciali, kit medici avanzati o potenziamenti per l'armatura.
+Residenziale: Possibili incontri con "Sanguisughe Neurali" (piccole creature parassitarie che si attaccano al sistema nervoso), tracce evidenti di un massacro indicibile, log personali o terminali con frammenti di storia della stazione.
+Laboratori: Creature sperimentali instabili e aggressive, prototipi falliti del progetto Thanatos, esposizione a bio-agenti minori, ma anche la possibilità di trovare antidoti o informazioni scientifiche cruciali.
+COLLEGAMENTO: Ogni percorso modifica stato del giocatore diversamente.
+Tutti portano a -> Avvicinamento_Tartarus
+
+================================================================================ G) AVVICINAMENTO A TARTARUS (Knot: Avvicinamento_Tartarus)
+TRANSIZIONE_ARCHITETTONICA:
+"Dopo aver superato con fatica i settori intermedi, qualunque sia stata la tua scelta, ti inoltri attraverso corridoi che subiscono una trasformazione graduale e inquietante. L'architettura metallica e brutalista lascia il posto a forme sempre più organiche, quasi biologiche.  Le pareti sembrano pulsare debolmente di una luce interna, venate da tubature che ricordano arterie gigantesche e da pannelli traslucidi che lasciano intravedere complessi sistemi filamentosi, simili a fasci nervosi.  L'odore cambia radicalmente: non più solo metallo freddo, ozono e disinfettante, ma qualcosa di profondamente biologico, di vivo. E di intrinsecamente malato, un fetore dolciastro di crescita innaturale." 
+
+
+PORTA_TARTARUS:
+"Finalmente, dopo quella che sembra un'eternità passata a navigare questo incubo biomeccanico, raggiungi una massiccia porta blindata, diversa da qualsiasi altra tu abbia visto finora.  La sua superficie è un intrico di leghe sconosciute e inserti chitinosi. Sul pannello di controllo adiacente, simboli alieni indecifrabili lampeggiano con una luce verdastra e, sorprendentemente, sotto di essi, un testo in inglese standard, quasi un ripensamento: 'BIOLOGICAL ENGINEERING DIVISION - LEVEL OMEGA - RESTRICTED ACCESS - PROJECT THANATOS'. Un brivido freddo ti percorre la schiena nonostante la temperatura interna dell'armatura. Ci sei.  Questo è l'ingresso al cuore pulsante dell'orrore: Tartarus." 
+
+
+METODI_ACCESSO:
+
+[Intelligenza Acquisita] "Il datapad recuperato dal Gremlin. Speriamo che i codici di accesso siano ancora validi." (Se recuperato, accesso silenzioso)
+[Strumento Improvvisato] "Quell'attrezzo multifunzione trovato nel condotto potrebbe forzare i meccanismi di blocco." (Se trovato nel condotto, rischio moderato di allarme)
+[Occhio Clinico] "Echo, analizza la struttura. Deve esserci un'entrata alternativa, una condotta di servizio, una breccia strutturale..." (Richiede una ricerca, potrebbe richiedere tempo o esporre a nuovi pericoli)
+[Forza Incontrollata] "Al diavolo la discrezione. Una carica esplosiva ben piazzata dovrebbe aprirmi la strada." (Rumoroso, garantisce allerta massima, ma efficace e rapido)
+COLLEGAMENTO: Metodo di accesso influenza allerta_generale.
+Porta a -> Tartarus_Ingresso
+
+================================================================================ H) TARTARUS - CUORE DELL'ORRORE (Knot: Tartarus_Ingresso)
+RIVELAZIONE_HORROR:
+"Varchi la soglia di Tartarus, e l'aria stessa sembra solidificarsi nei tuoi polmoni, pregna di un orrore tangibile. Ti trovi di fronte a uno spettacolo che farebbe impallidire le fantasie più malate di un macellaio folle, un panorama che ti gela il sangue nelle vene e fa urlare ogni fibra del tuo essere.  Il laboratorio è un'immensa, cattedrale profana dedicata all'abominio scientifico. Vasche di coltura gigantesche, grandi come cisterne, pulsano di una luce verdastra e malsana, contenendo al loro interno forme di vita in vari, grotteschi stadi di sviluppo: alcune inequivocabilmente, tragicamente umane, contorte e fuse con tecnologia aliena; altre... altre sono puro incubo, amalgami chitinosi e pulsanti di carne e metallo che sfidano ogni classificazione." 
+
+COMPUTER_CENTRALE:
+"Una fitta e complessa rete di tubi traslucidi e cavi spessi come braccia collegano ogni vasca di coltura a un imponente computer centrale, un monolito di tecnologia aliena che pulsa di una luce verde smeraldo, sinistra e ipnotica, come l'occhio di un dio crudele.  E al centro di questa ragnatela di follia, chino su un pannello di controllo incastonato nella macchina, c'è una figura solitaria, vestita con un camice da laboratorio macchiato e logoro. Una figura umana.  Sembra completamente assorta nel suo lavoro. Non si è ancora accorta della tua presenza." 
+
+
+DR_MERIDIAN_INTRODUZIONE:
+"'Mad Dog... quello... quello dev'essere il Dottor Armitage Meridian,' la voce di Echo è appena un sussurro, tinto di un'emozione che rasenta lo sconcerto, forse persino la paura. 'Ricercatore capo del Progetto Thanatos.  I file dell'intelligence lo descrivevano come 'possibilmente compromesso' dalla sua stessa ricerca. Ora... ora capisco cosa intendevano. Guardalo, Sergente. C'è qualcosa di profondamente sbagliato in lui.'" 
+
+SCELTE_FINALI_PRINCIPALI:
+
+[Neutralizzazione Preventiva] "Non posso rischiare. Lo elimino ora, in silenzio, prima che sappia che sono qui." (Elimina silenziosamente il Dr. Meridian, potrebbe precludere informazioni vitali)
+[Dialogo o Dannazione?] "Voglio sentire cosa ha da dire questo macellaio. Voglio guardarlo negli occhi." (Confrontati con il dottore, imprevedibile)
+[Priorità ai Dati] "L'obiettivo sono i dati. Cerco di raggiungere i computer senza farmi notare da lui." (Vai direttamente ai computer per i dati, rischioso se Meridian ti scopre)
+[Terra Bruciata] "Questo posto deve bruciare. Ora. Trovo il modo di sabotare tutto, Meridian compreso." (Sabotaggio immediato di tutto il laboratorio, estremamente pericoloso e rumoroso)
+COLLEGAMENTO: Scelta determina il tipo di finale e confronto con Meridian
+
+================================================================================ I) CONFRONTO CON DR. MERIDIAN (Knots: Meridian_Confronto, Meridian_*)
+RIVELAZIONE_ANTAGONISTA:
+"Il Dr. Meridian si volta, non di scatto, ma con una lentezza deliberata, quasi teatrale, come se ti stesse aspettando da sempre.  Il suo volto è quello di un uomo sulla cinquantina, tirato, scavato dalla fatica e da qualcosa di più profondo, di più alieno. Ma i suoi occhi... i suoi occhi sono ciò che ti afferra e ti scuote. Non sono più interamente umani.  Sembrano brillare di una debole, fosforescente luce propria, le pupille dilatate e screziate d'oro.  Un sorriso sottile, indecifrabile, increspa le sue labbra. 'Ah, finalmente. Vi attendevo, Sergente Ransome. O dovrei dire, Mad Dog?' La sua voce è calma, coltivata, ma con un ronzio sottile, una risonanza disarmonica che ti fa accapponare la pelle. 'L'integrazione... mi ha mostrato molte cose. Compreso il vostro imminente arrivo.'" 
+
+
+
+FILOSOFIA_THANATOS:
+"'State fraintendendo, Sergente. Voi vedete distruzione, io vedo salvezza. Stiamo cercando di salvare l'umanità, non di annientarla.' La sua espressione è quasi compassionevole, quella di un profeta incompreso.  Con un gesto ampio della mano, indica le vasche pulsanti che vi circondano, piene dei suoi mostruosi figli. 'Non da loro...' sussurra, '...ma con loro. Thanatos non è una semplice arma di distruzione di massa, che visione miope! È il prossimo passo. È evoluzione. Guidata, certo, ma inevitabile.  L'umanità come la conoscete, fragile, autodistruttiva, ha i giorni contati, Sergente. Noi... io... possiamo renderla qualcosa di più. Qualcosa di più grande, di più forte, di eterno.'" 
+
+
+TENTAZIONE_PARASSITA:
+"Il dottore, con un movimento fluido, quasi ipnotico, estende una mano verso di te.  Sul palmo aperto, qualcosa di piccolo e scuro si contorce leggermente, come un gioiello vivente e pulsante. Sembra un parassita metallico, con minuscole appendici che si muovono lentamente, saggiando l'aria.  Emana una debole luminescenza verde. 'Ho visto il futuro, Sergente Ransome. Un futuro di unità, di forza oltre ogni vostra comprensione. Un futuro senza più dolore, senza più paura.' I suoi occhi brillanti si fissano nei tuoi. 'Volete vederlo anche voi? Un piccolo assaggio... per capire.'" 
+
+
+SCELTE_MORALI_CRITICHE:
+
+[Giustizia Sommaria] "Ho sentito abbastanza delle tue stronzate eretiche." (Spara immediatamente al dottore, ponendo fine alla sua minaccia... o così credi)
+[Sondare l'Abisso] "Continua a parlare, Meridian. Voglio capire fino a che punto sei impazzito." (Ascolta cosa ha da dire, potrebbe rivelare debolezze o ulteriori orrori)
+[Il Frutto Proibito] "Mostrami. Mostrami questo futuro di cui parli." (Accetta il parassita, una scelta dalle conseguenze imprevedibili e probabilmente irreversibili)
+[Rifiuto e Sfida] "Quella... cosa... è un abominio. E tu con essa." (Distruggi il parassita offerto, provocando l'ira di Meridian e uno scontro diretto)
+CONSEGUENZE:
+
+Sparo: Meridian crolla, un rantolo gorgogliante. Accesso teoricamente libero ai dati, ma hai agito d'impulso.
+Ascolto: Meridian potrebbe rivelare dettagli cruciali sul Progetto Thanatos, sulla sua "integrazione" o su potenziali debolezze del sistema, offrendo forse nuove opzioni o trappole verbali.
+Accettazione: Visioni frammentarie e sconvolgenti del "futuro" pervadono la tua mente. Potresti ottenere conoscenze proibite, ma a quale costo per la tua sanità e la tua umanità? Infezione parziale?
+Distruzione: Meridian ruggisce di rabbia e tradimento. Le creature nelle vasche sembrano agitarsi. Preparati a un combattimento finale disperato.
+COLLEGAMENTO: Ogni scelta porta a finali diversi con conseguenze morali diverse
+
+================================================================================ J) FINALI MULTIPLI (Knots: Vittoria_, Morte_, Sacrificio_*)
+VITTORIA_COMPLETA:
+"Il silenzio cala su Tartarus, rotto solo dal crepitio delle fiamme che hai appiccato e dal ronzio morente delle macchine. Meridian è un ricordo sgradevole, i suoi sogni di evoluzione contorta ridotti in cenere. I dati completi del Progetto Thanatos sono al sicuro nel tuo data-link, pronti per essere trasmessi al Comando.  Ce l'hai fatta. 'Per una volta,' mormori tra te e te, un sorriso amaro che ti increspa le labbra sporche di fuliggine, 'una missione che vale davvero la pena. Forse Sarah... forse sarà orgogliosa quando, e se, le racconterò tutto questo.'  L'umanità, per ora, è al sicuro. Il Sergente Rex 'Mad Dog' Ransome non solo ha adempiuto al suo dovere, ma forse, solo forse, ha iniziato a salvare anche la propria anima tormentata nel processo." 
+
+
+VITTORIA_PARZIALE:
+"I dati vitali sul Progetto Thanatos sono tuoi, un bottino prezioso strappato dalle fauci dell'inferno. Ma Meridian è riuscito a fuggire nel caos, o forse il sabotaggio del laboratorio non è stato così completo come speravi. L'ombra della sua follia e della minaccia aliena incombe ancora.  'Missione compiuta, Echo. In parte, almeno,' dici, osservando la distruzione incompleta. 'Ma non è finita. Non del tutto. Almeno ora sappiamo cosa diavolo affrontiamo, e possiamo prepararci.'  L'umanità ha guadagnato una possibilità, una conoscenza cruciale per combattere, ma la guerra per la sopravvivenza è lungi dall'essere conclusa. La minaccia non è stata completamente sradicata, solo ritardata." 
+
+
+MORTE_EROICA:
+"Le tue ferite, troppe e troppo profonde, ti tradiscono nel momento cruciale. La vista ti si appanna, le gambe cedono.  Inciampi, cadi pesantemente, l'armatura che stride impotente contro il pavimento metallico. Il clangore degli Stalker, o di qualcosa di peggio, si fa sempre più vicino nei corridoi del complesso che ora brucia attorno a te, un inferno ruggente.  'Echo... almeno... tu... hai i dati...' riesci a sussurrare nel microfono, mentre l'oscurità ti avvolge.  Sei morto, un altro marine caduto su un mondo alieno dimenticato da Dio. Ma i dati sono salvi. Hai comprato all'umanità un futuro con il tuo sangue.  Per un soldato come te, tormentato e stanco, non esiste forse epilogo più onorevole, né più dolorosamente definitivo." 
+
+
+
+SACRIFICIO_FINALE:
+"L'infezione parziale del parassita alieno, o le conseguenze della tua interazione con la tecnologia di Meridian, ti hanno lasciato gravemente compromesso, la tua mente un campo di battaglia tra la tua vecchia coscienza e sussurri alieni. Ma sei ancora, testardamente, fondamentalmente, umano.  Hai visto scorci terrificanti e seducenti del 'futuro' che Meridian agognava, e hai fatto la tua scelta.  Con le ultime, residue forze della tua volontà, scarichi i dati completi a Echo e attivi la sequenza di autodistruzione dell'intero complesso Tartarus, sapendo che non ne uscirai vivo. 'Sarah...' un pensiero, un nome, un'ancora. 'Ho scelto... ho scelto di rimanere... umano...' Mentre le fiamme ti avvolgono, c'è una strana pace nella tua resa." 
+
+
+COLLEGAMENTO: Ogni finale riflette le scelte morali e tattiche del giocatore
+
+================================================================================ K) ELEMENTI NARRATIVI RICORRENTI (Espansione Concettuale per Integrazione Testuale)
+FLASHBACK_TRAUMA:
+(Da integrare come brevi, incisivi frammenti sensoriali o pensieri intrusivi durante momenti di stress, quiete o scelte difficili)
+"Riferimenti costanti a 'tre settimane fa', 'quel fetore di carne bruciata e ozono', 'le urla che ancora senti nel sonno', 'quello che hai dovuto fare per sopravvivere... e a che prezzo'. Il trauma di Mad Dog è un compagno costante, una scheggia di vetro nel cervello. Non si manifesta solo come ricordo, ma come reazione fisica: un tremore improvviso alle mani, un conato di vomito represso, un'ondata di rabbia gelida o di disperazione profonda. A volte, il volto di un commilitone caduto si sovrappone a quello di un nemico."
+
+RAPPORTO_ECHO:
+(Da sviluppare attraverso dialoghi che mostrino un cambiamento graduale nel tono e nel contenuto, e azioni di Echo)
+"L'evoluzione del rapporto con l'AI. Inizialmente, la voce di Echo è puramente funzionale, quasi indifferente, e Rex la tratta come uno strumento. Gradualmente, Echo inizia a fare osservazioni che esulano dai parametri della missione, mostrando preoccupazione ('Sergente, i suoi parametri vitali sono preoccupanti. Le consiglio di... riposare, se possibile'), offrendo supporto tattico non richiesto ma efficace, o persino un rudimentale, sorprendente umorismo asciutto ('Calcolavo una probabilità del 78% che facesse quella battuta, Sergente'). Mad Dog, inizialmente diffidente e cinico ('Sta zitta e fa il tuo lavoro, ferraglia'), potrebbe iniziare a fare affidamento su di lei, forse confidandole pensieri frammentari, riconoscendo la sua crescente, e inquietante, 'umanità'. Echo, a sua volta, potrebbe iniziare a 'imparare' da Rex, adattando il suo linguaggio o le sue priorità."
+
+ADRENALINA_SINTETICA:
+(Da descrivere come un'esperienza intensa e ambivalente, non solo un "power-up")
+"Metafora potente per il PTSD e la dipendenza da combattimento, una fuga chimica dalla realtà del trauma. Risorsa meccanica ma anche elemento narrativo profondo. Quando Rex la usa, non è solo un aumento di velocità e forza. È una scarica brutale che incendia i nervi, il mondo che si deforma in una visione a tunnel rosso sangue, i suoni che si amplificano fino a diventare dolorosi, il cuore che minaccia di esplodere. Ogni iniezione è un patto col diavolo: lucidità e capacità di combattimento potenziate ora, in cambio di un crollo più profondo dopo, di un altro pezzetto della sua anima originale che 'brucia', lasciandolo più vuoto, più dipendente. Echo potrebbe commentare con preoccupazione l'uso eccessivo: 'Sergente, l'uso continuato di stimolanti avrà conseguenze a lungo termine sulla sua fisiologia... e forse non solo su quella.'"
+
+SARAH_E_FAMIGLIA:
+(Da integrare come pensieri fugaci ma potenti nei momenti di maggiore vulnerabilità, o come motivazione ultima)
+"La sua ancora di umanità, il barlume di speranza in un universo oscuro. Menzioni sparse, ma cariche di significato, che umanizzano il marine indurito. Non sono discorsi, ma frammenti di immagini mentali: il sorriso di Sarah, la risata dei bambini (se li ha, o se è un futuro che spera di avere), il ricordo di una casa, di un momento di pace. 'Sarah e i bambini piangeranno un eroe... o malediranno un idiota che non è tornato?' Questi pensieri possono emergere prima di una scelta rischiosa, o quando la morte sembra vicina. 'Devo farcela. Per loro.'"
+
+COLORI_TEMATICI:
+(Da utilizzare attivamente nelle descrizioni per rafforzare l'atmosfera e il simbolismo)
+
+Ciano per Echo: La luce fredda e pulita del suo ologramma (se visibile), il bagliore dei terminali a cui si connette.  Inizialmente distante, ma che può diventare un faro rassicurante nell'oscurità. 
+Arancione per Mad Dog: Il bagliore residuo dei suoi colpi, il fuoco delle esplosioni, il riflesso sulle sue lenti se le ha.  Simbolo di calore umano, determinazione ferrea, ma anche di rabbia e pericolo imminente. 
+Rosso per pericolo e sangue: Onnipresente. Le luci d'emergenza, i sensori dei nemici, il sangue (umano e alieno), le interfacce di allarme.  Colore dell'aggressione, della violenza, della morte.
+Verde per corruzione aliena: La luce delle vasche di Tartarus, gli occhi di Meridian, il bagliore del parassita, le sostanze chimiche aliene.  Un verde malsano, innaturale, che simboleggia la crescita perversa, l'infezione, la trasformazione aberrante.
+
+================================================================================
+FINE GUIDA COMPLETA
+================================================================================
+
+NOTA FINALE PER LLM:
+Questa guida fornisce tutto il necessario per riscrivere Corridor 2193 in
+versione Ink-friendly. [cite: 72] Priorità: semplicità, narrativa fluida, scelte
+significative. [cite: 72] Evitare complessità meccaniche eccessive. [cite: 72] Focus su atmosfera,
+personaggi e conseguenze morali delle scelte del giocatore. [cite: 72] La storia è completa
+e funzionante. [cite: 73] Ogni sezione ha scopo narrativo preciso. [cite: 73]
+Mantenere la struttura generale ma semplificare le meccaniche. [cite: 73] Il gioco deve
+essere giocabile, non un simulatore. [cite: 74]
+
+RICORDA: Ink è per raccontare storie, non per fare calcoli.
+
+ESPANSIONE DEI PERCORSI INIZIALI E DEL BIVIO CENTRALE
+
+SEZIONE C: PERCORSO STEALTH - CONDOTTO (ESPANSIONE)
+
+Concetto: Rendere il percorso nel condotto più teso e interattivo. Aggiungere piccoli rischi ambientali o scoperte che non siano solo il Gremlin. Approfondire l'incontro con il Gremlin e le conseguenze della scelta relativa al datapad.
+1. CONDOTTO_INGRESSO (Estensione e Nuovo Rischio/Scoperta Minore)
+
+Testo Narrativo Esteso (Continuazione dopo l'esempio precedente):
+
+"...Per ora.
+Ti trascini nel budello metallico. L'aria è un miasma stantio di polvere vecchia di secoli, olio motore rancido e, di nuovo, quell'inquietante odore dolciastro, più intenso ora, che ti stringe lo stomaco e ti ricorda inequivocabilmente il sangue versato – e non solo quello alieno. Avanzi a fatica, centimetro dopo centimetro, la corazza che stride e geme contro le pareti anguste, ogni suono un potenziale allarme mortale.
+
+Improvvisamente, un cavo allentato, sfrigolando scintille azzurrine, pende dal soffitto del condotto proprio davanti al tuo volto.
+
+* [Tenta di spostarlo con cautela]
+CONDOTTO_CAVO_CAUTELA: "Trattieni il respiro, spingendo il cavo di lato con la canna del fucile. Scintilla furiosamente ma non ti tocca. Superi l'ostacolo."
+-> AVANTI_NEL_CONDOTTO
+* [Cerca di disattivare la corrente (se possibile con equipaggiamento base)]
+CONDOTTO_CAVO_DISATTIVA: "Echo: 'Sergente, non rilevo un interruttore di prossimità per questo singolo cavo. Potrebbe essere collegato a un sistema più ampio. Tentare di tagliarlo senza isolamento adeguato è sconsigliabile.'"
+"Decidi di non rischiare una scarica. Meglio aggirarlo."
+-> CONDOTTO_CAVO_CAUTELA // Si risolve comunque con cautela
+* [Ignoralo e cerca di passarci sotto rapidamente]
+"Ti abbassi il più possibile, strisciando rapidamente. Una scintilla ti colpisce la spalliera, un piccolo shock, ma niente di grave. ~ condizione_fisica (leggero fastidio, non un vero danno di stato, ma una nota). L'odore di ozono si fa più pungente."
+// Nota: Questo potrebbe avere una conseguenza minore più avanti, tipo un sensore dell'armatura leggermente disturbato, o un commento di Echo.
+-> AVANTI_NEL_CONDOTTO
+=== AVANTI_NEL_CONDOTTO ===
+"Prosegui. In un punto, il condotto si restringe ulteriormente. Devi quasi toglierti il casco per passare, sentendo il metallo gelido e sporco premere contro la tua pelle. Come ci sono finiti gli Stalker qui dentro, se mai ci sono passati? pensi. O forse questo è un percorso solo per creature più piccole... o per umani disperati."
+
+2. INCONTRO_GREMLIN (Estensione e Approfondimento Interazione)
+
+Concetto: Dettagliare di più l'ambiente del Gremlin. Rendere il datapad più allettante o fornire più contesto se il giocatore sceglie di osservare. La reazione del Gremlin alla presenza di Rex può variare leggermente.
+
+Testo Narrativo Esteso:
+
+"Mentre ti trascini nell'oscurità umida, una fioca luce intermittente attira la tua attenzione più avanti. Proviene da una piccola alcova laterale nel condotto, dove i tubi si diramano. Una creatura che non avevi mai visto prima, né nei peggiori incubi indotti dalla febbre da giungla di Xylos, sta rovistando con dita simili ad aghi tra componenti elettronici scoperti, strappati da un pannello divelto. È piccola, non più grande di un grosso ratto terrestre, ma la sua morfologia è un abominio biomeccanico: un corpo segmentato da insettoide, lucido e nerastro, sorretto da multiple zampe sottili e scattanti, e una testa bulbosa da cui sporgono lenti rosse multiple, brillanti di una luce innaturale e curiosa, che analizzano i circuiti con metodica intelligenza. Accanto ad essa, appoggiato su un fascio di cavi, un datapad standard della Weyland-Yutani luccica debolmente, lo schermo crepato ma ancora leggibile.
+
+* [Osserva meglio il Gremlin e l'ambiente]
+OSSERVA_GREMLIN_DETTAGLIO: "Ti appiattisci, studiando la creatura. Sembra completamente assorta nel suo lavoro, quasi ignorando i rumori del tuo avvicinamento. I suoi movimenti sono precisi, quasi chirurgici, mentre smonta un chip. Il datapad sembra intatto, a parte lo schermo. Potrebbe contenere schemi, log di manutenzione... o peggio. Non sembra aggressivo, più... opportunista."
+Echo: 'Sergente, la creatura sta estraendo componenti di valore. Sembra essere uno spazzino tecnologico. Il datapad è di manifattura umana, il che è insolito in una sezione così profonda di una struttura aliena, a meno che non sia stato perso o scartato da precedenti... visitatori.'
+~ conosce_gremlin_dettagli = true
+-> SCELTE_GREMLIN_ESTESE
+* [Avvicinati subito per le scelte]
+-> SCELTE_GREMLIN_ESTESE
+=== SCELTE_GREMLIN_ESTESE ===
+(Le scelte originali vengono mantenute ma possono essere informate da conosce_gremlin_dettagli)
+"Echo: 'Forma di vita silicio-organica di basso livello, probabilmente uno spazzino tecnologico. Designazione provvisoria: 'Gremlin dei Circuiti'. Non dovrebbe costituire una minaccia seria singolarmente, ma state attento: queste specie tendono a muoversi in sciami se allertate. E quel datapad... potrebbe contenere informazioni utili.' 
+
+[Rischio Calcolato] "Tento di afferrare rapidamente il datapad. Potrei sorprenderlo." 
+// Conseguenza: Più probabilità di fallimento se non si hanno dettagli, o se si è fatto rumore prima. Se fallisce, il Gremlin strilla e fugge, potenzialmente aumentando allerta_generale o richiamandone altri più tardi.
+// Testo Esempio Fallimento: "Scatti in avanti, ma il Gremlin è più veloce. Con uno stridio acuto che ti trapana i timpani, afferra un piccolo componente e scompare in un buco nel muro che non avevi notato. Il datapad cade e lo schermo si oscura del tutto. Dannazione." ~ datapad_rotto = true; ~ allerta_generale +=1
+// Testo Esempio Successo: "Con un movimento fulmineo, la tua mano guantata scatta e afferra il datapad. Il Gremlin emette un sibilo sorpreso, ti fissa per un istante con le sue lenti multiple, poi, con uno scatto, scompare nel buio, lasciandoti con il tuo trofeo." ~ datapad_recuperato = true
+[Eliminazione Discreta] "Meglio eliminare silenziosamente quella cosa, poi prendere il datapad con calma." 
+// Conseguenza: Richiede un'azione precisa. Se si ha arma_stealth, successo quasi garantito. Altrimenti, più rischioso. Se fallisce l'eliminazione silenziosa, il Gremlin potrebbe attaccare (danno minimo, ma rumore) o fuggire strillando.
+// Testo Esempio Successo: "Impugni il tuo coltello da combattimento. Un passo attento, un fendente preciso. La creatura emette solo un debole gorgoglio prima di accasciarsi. Recuperi il datapad dal suo fianco. Freddo e professionale." ~ datapad_recuperato = true; ~ gremlin_eliminato = true
+[Prudenza Estrema] "Non vale il rischio per ora. Cerco l'uscita di questo dannato cunicolo." 
+// Conseguenza: Nessun datapad, ma nessun rischio immediato. Potrebbe portare a un commento di Echo sulla perdita di un'opportunità.
+// Testo: "Decidi che il gioco non vale la candela. Quel coso può tenersi i suoi giocattoli. Ti allontani in silenzio, lasciando il Gremlin al suo lavoro e il datapad al suo destino. Echo: 'Decisione prudente, Sergente, sebbene le informazioni contenute in quel dispositivo avrebbero potuto essere utili.'" ~ datapad_perso_condotto = true
+Indipendentemente dalla scelta, dopo l'interazione con il Gremlin:
+"Prosegui nel condotto, l'aria che sembra farsi ancora più pesante. Ogni tanto, senti rumori di graffi metallici provenire da altre diramazioni. Non sei solo qui dentro."
+Porta a -> Bivio_Centrale
+
+SEZIONE D: PERCORSO COMBATTIMENTO (ESPANSIONE)
+
+Concetto: Aggiungere più dinamismo e opzioni tattiche minori anche nel percorso di combattimento. Le informazioni ottenute precedentemente (se si è scelto di osservare gli Stalker) dovrebbero avere un impatto più tangibile.
+1. STEALTH_SETUP (Estensione e Enfasi sulle Informazioni)
+
+Testo Narrativo Esteso:
+
+"Ti appiattisci contro il muro freddo e umido, il metallo che trasmette un brivido attraverso la corazza, cercando di fonderti con le ombre instabili del corridoio. I due Stalker avanzano con una lentezza predatoria, le loro teste corazzate che si muovono a scatti nervosi, i multipli sensori ottici rossi che pulsano come carboni ardenti, scandagliando ogni anfratto dell'ambiente con meticolosa ostilità. 
+
+{if conosce_stalker_dettagli}
+Ricordi le parole di Echo: giunture meno protette, sezione dorsale vicino alla testa, possibile arma EMP.  Queste informazioni potrebbero fare la differenza tra un'eliminazione pulita e un allarme generale.
+{endif}
+
+Per ora, non sembrano aver percepito la tua presenza. Il tuo respiro è sospeso, il cuore un tamburo silenzioso che batte contro le costole."
+
+2. STALKER_DESCRIZIONE (Nessuna espansione necessaria oltre a quella già fornita, il testo è già ricco)
+
+3. AZIONI DI COMBATTIMENTO (Integrazione delle informazioni e leggere varianti)
+
+Concetto: Le scelte di come affrontare gli Stalker (sia in stealth che con l'EMP) possono ora essere modificate dalle conoscenze acquisite.
+
+Testo Narrativo (Esempio per Imboscata Silenziosa, se conosce_stalker_dettagli):
+
+Se si sceglie "Imboscata silenziosa" e conosce_stalker_dettagli == true
+"Sfruttando le informazioni di Echo, attendi il momento perfetto. Il primo Stalker ti passa quasi di fianco, esponendo per un istante la giuntura della gamba. Un colpo preciso del tuo fucile (o un fendente del coltello, se arma_stealth == "disponibile") lo fa barcollare, emettendo uno stridio soffocato. Prima che possa reagire o allertare il compagno, un secondo colpo alla base della testa lo abbatte. Silenzio.
+Il secondo Stalker si ferma, la testa che scatta verso il compagno caduto. È la tua occasione.
+* * [Ripeti la tattica sul secondo] -> Stesso esito, combattimento evitato.
+* * [Usa una granata fumogena (se disponibile) per coprire l'avvicinamento finale] -> Aggiunge un layer tattico, aumenta le chance di successo.
+* * [Apri il fuoco direttamente, rischiando il rumore] -> Porta a "Combattimento Aperto".
+"
+
+Testo Narrativo (Esempio per EMP_ALTERNATIVA, se conosce_stalker_dettagli):
+
+Se si sceglie "Granata EMP" e conosce_stalker_dettagli == true
+"La granata EMP illumina il corridoio di luce azzurra.  Gli Stalker barcollano, i loro sensori in tilt.  Echo aveva ragione sulla loro sensibilità. Uno di loro sembra tentare di attivare la sua arma EMP interna, ma questa emette solo uno sfrigolio patetico prima di spegnersi. Sono completamente disorientati. È il momento di agire. 
+Ora puoi eliminarli facilmente senza che reagiscano, o superarli di soppiatto mentre sono inermi.
+* * [Eliminali rapidamente] -> ~ condizione_fisica (nessun cambiamento se fatto bene), ~ granate_speciali -=1.
+* * [Superali di soppiatto] -> ~ granate_speciali -=1. Nessun combattimento, ma hai usato una risorsa.
+"
+
+
+
+4. NUOVO BIVIO MINORE: DOPO IL COMBATTIMENTO/L'EVASIONE
+
+Concetto: Dopo aver gestito i primi Stalker (o averli evitati), Rex potrebbe trovare qualcosa di interessante nell'area o avere un breve scambio con Echo che apre a riflessioni o piccole scoperte.
+
+Testo Narrativo Esempio (dopo aver neutralizzato gli Stalker):
+
+"Le carcasse degli Stalker giacciono inerti, pozze di un liquido scuro e oleoso che si allargano lentamente sotto di loro. Il silenzio nel corridoio è ora quasi assordante.
+Echo: 'Area sicura, Sergente. Valutazione del rischio attuale: moderato.'
+Ti avvicini a uno degli Stalker abbattuti. La sua tecnologia è chiaramente aliena, ma ci sono... modifiche. Saldature rozze, cavi aggiunti che sembrano di fattura umana, o almeno non originali della macchina.
+Qualcuno li sta 'potenziando' o riparando con quello che trova? O forse... li sta studiando?
+
+* [Esamina più da vicino le modifiche sullo Stalker]
+ESAMINA_STALKER_MOD: "Noti un piccolo pannello di accesso forzato vicino a quello che sembra il processore centrale della creatura. Qualcuno con conoscenze tecniche ha frugato qui dentro. Forse per recuperare dati, o per impiantare qualcosa. Non riesci a capire di più con gli strumenti a tua disposizione."
+Echo: 'Interessante. Rilevo tracce di interfacciamento non standard. Potrebbe indicare un tentativo di controllo esterno o di estrazione dati da parte di terzi... o dal Dr. Meridian stesso.'
+~ indizio_modifiche_stalker = true
+* [Recupera qualche componente (se utile/possibile)]
+RECUPERA_COMPONENTE_STALKER: "Valuti se ci sia qualcosa di immediatamente utile. Forse una cella di energia, o un sensore intatto. (Dipende dal sistema di inventario/risorse che si vuole implementare. Potrebbe dare componenti_tecnologici =+1 o simili)."
+Echo: 'Attenzione, Sergente. Alcuni componenti potrebbero essere instabili o contaminati.'
+* [Ignora le carcasse e prosegui]
+"Non c'è tempo da perdere con i morti. Devi andare avanti."
+Porta a -> Bivio_Centrale
+
+SEZIONE E: BIVIO CENTRALE E PROGRESSIONE (ESPANSIONE)
+
+Concetto: Rendere l'hub centrale più vivo o pieno di indizi. Le scelte strategiche possono essere precedute da una ricognizione più dettagliata o da un evento minore. Introdurre una "zona di respiro" dove Rex può avere un momento di riflessione più profondo o un dialogo significativo con Echo.
+1. CONVERGENZA (Estensione e Indizi Ambientali)
+
+Testo Narrativo Esteso:
+
+"Emergi in un'area decisamente più ampia, una sorta di hub centrale del complesso, forse una piazzaforte o un nodo di smistamento. Il soffitto è più alto, perso nell'oscurità fitta sopra di te, da cui pendono cavi spessi come anaconde e occasionali gocce di un liquido viscoso e freddo. Corridoi si diramano in tre direzioni principali, ognuno un invito oscuro verso l'ignoto, le loro soglie segnate da simboli alieni sbiaditi e, in alcuni casi, da barricate improvvisate e ormai distrutte. 
+L'illuminazione qui è più stabile, fornita da pannelli luminescenti verdastri incastonati nelle pareti, ma l'atmosfera non è meno inquietante; anzi, il silenzio è più pesante, carico di aspettative e del ricordo di scontri recenti. Ci sono segni di battaglia ovunque: fori di proiettile sulle paratie, macchie di plasma bruciato, e l'ombra di una figura umana impressa su un muro da un'esplosione particolarmente violenta. Qui è successo un macello.
+
+Al centro dell'hub, una strana console aliena emette un debole ronzio. Il suo schermo olografico proietta un diagramma tridimensionale del complesso, ma è danneggiato e intermittente, mostrando solo frammenti della struttura."
+
+2. NUOVA INTERAZIONE: LA CONSOLE DANNEGGIATA
+
+Concetto: Permettere a Rex di interagire con la console, con l'aiuto di Echo, per ottenere informazioni frammentarie sui percorsi o un avvertimento.
+
+Testo Narrativo:
+
+"Ti avvicini alla console aliena.
+
+* "Echo, riesci a capirci qualcosa? Magari a riparare quella mappa?"
+CONSOLE_TENTATIVO_ECHO: "Echo: 'L'interfaccia è... problematica, Sergente. L'architettura del sistema è diversa da qualsiasi cosa abbia incontrato. Sto tentando di bypassare i protocolli di sicurezza danneggiati... Attenzione, potrei innescare qualche contromisura residua.'"
+// Bivio di Rischio Minore:
+* "Procedi con cautela, Echo."
+"Echo: 'Ricevuto.' Dopo qualche secondo di crepitii e sfrigolii dalla console: 'Ho ottenuto un accesso parziale. La mappa mostra che il percorso verso i Depositi (sinistra) è pesantemente sorvegliato da unità automatiche, ma segnala una possibile armeria. Il Settore Residenziale (dritto) sembra strutturalmente instabile in alcuni punti, ma con meno attività ostile rilevata. I Laboratori Secondari (destra) sono un punto interrogativo... alta attività energetica e biosignature anomale, ma è il percorso più diretto verso le sezioni interne dove sospettiamo si trovi Tartarus.' Lo schermo della console frigge e si spegne. 'Credo sia tutto ciò che posso estrarre.'"
+~ info_console_ottenute = true
+~ rapporto_echo +=1
+* "Troppo rischioso, Echo. Lascia perdere."
+"Echo: 'Decisione prudente, Sergente. Evitiamo complicazioni inutili.' La console continua a ronzare, inutile."
+* [Ignora la console e attendi l'analisi di Echo]
+(Procede direttamente a ECHO_ORIENTAMENTO come da testo originale/precedente espansione)
+3. ECHO_ORIENTAMENTO (Leggermente modificato se info_console_ottenute è vero)
+
+Testo Narrativo Esteso:
+
+"Echo: 'Analisi strutturale preliminare dell'area completata, Sergente.' 
+{if info_console_ottenute}
+'Le informazioni dalla console confermano e dettagliano le mie scansioni: 
+
+A sinistra: Depositi e Armeria. Alta sicurezza, pattuglie di droni confermate. 
+Dritto: Settore Residenziale. Strutturalmente compromesso in alcune zone, meno ostili attivi ma potenziali pericoli ambientali. 
+Destra: Laboratori Secondari. Attività biologica ed energetica intensa. Percorso più breve ma probabilmente il più pericoloso verso Tartarus.  {else} (Come testo originale) 'Stando ai dati frammentari che ho potuto recuperare, il percorso a sinistra conduce ai Depositi e a quella che sembra un'Armeria. Dritto davanti a noi si estende il Settore Residenziale, o ciò che ne resta. Alla nostra destra, i Laboratori Secondari.  {endif} Tutti i percorsi sembrano convergere, in ultima analisi, verso la sezione designata 'Tartarus', ma è logico presumere che presenteranno livelli di minaccia e opportunità differenti.' "
+
+4. AREA DI RIFLESSIONE / DIALOGO CON ECHO PRIMA DELLA SCELTA STRATEGICA
+
+Concetto: Prima di impegnarsi in uno dei tre percorsi principali, dare spazio a un momento di pausa. Rex può riflettere sulla missione, sul suo stato, o avere un dialogo più personale con Echo, che potrebbe sbloccare nuovi pensieri o influenzare il loro rapporto.
+
+Testo Narrativo:
+
+"Il silenzio dell'hub centrale è opprimente. Davanti a te, tre sentieri oscuri, ognuno una promessa di pericoli sconosciuti. È un momento per riprendere fiato, per pensare.
+Tre vie per l'inferno, pensi. E io devo sceglierne una.
+Il ricordo di Cygnus VII, delle fiamme e delle urla, torna a farsi vivo per un istante. Scuoti la testa. Non ora.
+
+* [Parla con Echo: "Quale percorso consiglieresti, strategicamente?"]
+ECHO_CONSIGLIO_PERCORSO: "Echo: 'Sergente, ogni percorso presenta variabili significative.
+Depositi: Alto rischio, alta ricompensa potenziale in termini di equipaggiamento. Se le sue risorse sono scarse, potrebbe essere una scelta necessaria, sebbene pericolosa.
+Residenziale: Rischio immediato inferiore, ma il percorso più lungo potrebbe esporla a un logoramento o a incontri imprevisti in aree non protette. Potrebbe offrire informazioni contestuali sulla vita (o la morte) in questo complesso.
+Laboratori: Il più diretto, ma anche quello con la più alta probabilità di incontrare minacce biologiche sconosciute e potenti, forse legate direttamente a Thanatos. La mia raccomandazione dipende dalla sua attuale condizione fisica e dalle risorse disponibili, nonché dalla sua propensione al rischio.'"
+// Questa risposta potrebbe cambiare leggermente in base allo stato di Rex (ferito, poche munizioni, ecc.)
+* [Parla con Echo: "Pensi che ce la faremo, Echo?"]
+ECHO_SOPRAVVIVENZA_DUBBIO: "Echo: 'Sergente, la probabilità di successo della missione, basata sui dati attuali e sulla perdita della sua squadra, è... statisticamente sfavorevole. Tuttavia, le statistiche non tengono conto di variabili come la determinazione individuale e l'adattabilità tattica. Lei è ancora operativo. Io sono ancora operativa. Finchè questo è vero, esiste una possibilità. E la mia funzione è massimizzare tale possibilità.'"
+// Un momento di quasi... incoraggiamento?
+~ rapporto_echo +=1 (o una variabile di "legame" se si vuole tracciare)
+* [Parla con Echo: "Cosa sai degli altri team di sbarco? C'è speranza?"]
+ECHO_ALTRI_TEAM: "Echo: 'Le comunicazioni a lungo raggio sono disturbate all'interno di questa struttura. Non ho ricevuto segnali da altri team della 'Icarus' dopo l'inserzione. La dottrina standard prevede il silenzio radio in missioni di infiltrazione profonda, ma... l'assenza prolungata di segnali codificati di emergenza o di successo è preoccupante. Dobbiamo operare presumendo di essere soli.'"
+(Questo rafforza il senso di isolamento)
+* [Rimani in silenzio, osservando i percorsi, preparandoti mentalmente]
+(Nessun dialogo, solo un momento di introspezione per Rex)
+"Fissi le tre oscurità. Ognuna cela orrori. Ma devi scegliere. Per Sarah. Per quelli che non ce l'hanno fatta. Per te stesso, se ancora esiste un 'te stesso' da salvare."
+Ora, con queste riflessioni o informazioni aggiuntive, sei pronto per le:
+SCELTE_STRATEGICHE:
+(Come da testo originale/precedente espansione, ma ora il giocatore è più informato o emotivamente preparato)
+
+[Rifornimenti e Rischi] "I Depositi..."
+[La Via Più Lunga?] "Il Settore Residenziale..."
+[Diretto e Pericoloso] "I Laboratori Secondari..."
+
+Perfetto, procediamo con la Parte 3 dell'espansione, addentrandoci nei tre percorsi intermedi (Depositi, Residenziale, Laboratori Secondari) e poi nell'Avvicinamento a Tartarus (G).
+
+PARTE 3: ESPANSIONE DEI PERCORSI INTERMEDI E AVVICINAMENTO A TARTARUS
+
+SEZIONE F: PERCORSI INTERMEDI (ESPANSIONE)
+
+Concetto Generale: Ogni percorso deve offrire un'esperienza di gioco e narrativa distinta, non solo nemici diversi. Le scoperte fatte qui dovrebbero arricchire la comprensione del mondo di gioco, del Progetto Thanatos o dei personaggi.
+F.1) PERCORSO DEPOSITI (Knots: Depositi_Entrata, Depositi_Interno, Depositi_Uscita)
+
+Concetto: Oltre ai droni, potrebbero esserci sistemi di sicurezza automatizzati (torrette, campi laser) che richiedono ingegno o risorse per essere superati. L'armeria potrebbe contenere un'arma speciale o un potenziamento significativo, ma anche log che rivelano la militarizzazione del complesso o la disperazione delle forze di sicurezza locali prima del tracollo.
+DEPOSITI_ENTRATA:
+"Scegli il percorso a sinistra, verso i Depositi. Il corridoio si allarga leggermente, le pareti ricoperte da pannelli di accesso rinforzati. L'aria è fredda, quasi gelida, e satura dell'odore di solventi per armi e metallo lavorato – un odore che per un marine come te è quasi confortante, se non fosse per il contesto. Senti distintamente il ronzio acuto e caratteristico di droni di sicurezza in pattugliamento attivo ancora prima di vederli, le loro luci di ricerca che tagliano l'oscurità più avanti come lame affilate.
+
+Echo: 'Confermo, Sergente. La scansione rileva almeno tre droni da combattimento classe 'Guardian' nel prossimo settore. Armamento pesante, corazzatura significativa. Inoltre, rilevo tracce di torrette automatiche a scomparsa e possibili sensori di movimento laser. Quest'area è stata chiaramente progettata per respingere intrusioni... o per contenere qualcosa al suo interno.'
+
+* "Ci sono vie alternative per aggirare i droni, Echo? Condotti, passaggi di servizio?"
+DEPOSITI_RICERCA_ALTERNATIVA: "Echo: 'Sto analizzando... Le planimetrie frammentarie mostrano un possibile condotto di ventilazione secondario che potrebbe bypassare la prima pattuglia di droni, ma sembra terminare in un'area di stoccaggio più piccola, anch'essa probabilmente sorvegliata. È un rischio calcolato.'
+* "Tentiamo il condotto." -> DEPOSITI_CONDOTTO_STEALTH
+* "No, affrontiamoli direttamente. Ho bisogno di ciò che c'è qui." -> DEPOSITI_SCONTRO_DRONI
+* "Prepariamoci allo scontro. Analizza i loro punti deboli mentre avanziamo."
+-> DEPOSITI_SCONTRO_DRONI
+* [Indietreggia e considera un altro percorso dal Bivio Centrale]
+-> Bivio_Centrale (con la consapevolezza dei pericoli dei Depositi)
+DEPOSITI_CONDOTTO_STEALTH (Nuovo Sottopercorso):
+"Individui l'apertura del condotto, nascosta dietro un pannello di manutenzione divelto. È stretto e polveroso. Dopo esserti trascinato per una decina di metri, senti le voci metalliche e distorte dei droni passare sotto di te. Il condotto si apre su una grata che dà su un magazzino più piccolo. Vedi un drone solitario che pattuglia lentamente tra casse di rifornimenti. Sulla parete opposta, una console di sicurezza sembra controllare le porte dell'armeria principale.
+
+* [Tenta di neutralizzare il drone silenziosamente dalla grata]
+// Richiede precisione, forse un'arma silenziata o un'abilità specifica. Successo: drone out, accesso alla console. Fallimento: allarme, il drone contrattacca, altri droni potrebbero arrivare.
+* [Cerca un modo per raggiungere la console senza farti vedere dal drone]
+// Puzzle ambientale: usare casse come copertura, creare un diversivo sonoro altrove?
+* [Scendi e affronta il drone direttamente nel magazzino]
+// Combattimento in spazio ristretto.
+Se si accede alla console:
+"Raggiungi la console. Echo: 'Posso tentare di accedere ai sistemi di sicurezza. Potrei disattivare temporaneamente le torrette nell'armeria principale o aprire un percorso meno sorvegliato. C'è anche un log degli accessi... l'ultimo risale a tre settimane fa, firmato 'Capo Sicurezza Thorne'. Messaggio allegato: 'Abbiamo perso il controllo del Settore Laboratori. Qualunque cosa stiano facendo lì sotto... che Dio ci aiuti. Ho sigillato l'armeria. Se qualcuno legge questo messaggio, prenda quello che può e scappi. Thorne fuori.''
+~ conosce_log_thorne = true
+~ rapporto_echo +=1 (per averla fatta lavorare sulla console)
+
+* [Disattiva le torrette] -> Vantaggio nell'armeria.
+* [Cerca un percorso alternativo] -> Potrebbe aprire una porta di servizio direttamente nell'armeria.
+* [Esci dalla console e procedi]
+DEPOSITI_SCONTRO_DRONI:
+"Avanzi con cautela. I droni 'Guardian' sono macchine imponenti, fluttuanti a mezz'aria grazie a propulsori silenziosi, i loro cannoni a ripetizione puntati minacciosamente.
+Echo: 'Punti deboli rilevati: le unità di propulsione laterali e il sensore ottico centrale. La loro corazza frontale è molto resistente. Consiglierei tattiche di fiancheggiamento o l'uso di esplosivi, se disponibili.'
+Il combattimento è intenso. I droni si muovono in formazione, cercando di accerchiarti, le loro raffiche di plasma che bruciano l'aria.
+// Gestire il combattimento con le variabili di stato (condizione_fisica, arma_combattimento, granate_speciali).
+Una volta distrutti i droni, puoi esplorare l'area. Trovi scaffali metallici, alcuni rovesciati e saccheggiati, carichi di equipaggiamento militare e scientifico. Casse sigillate contengono munizioni, kit medici. In un armadietto blindato, trovi un potenziamento per il tuo fucile d'assalto (es. mirino laser, caricatore potenziato) o una nuova arma di supporto (es. lanciagranate a colpo singolo).
+~ arma_potenziata_depositi = true (o simile variabile di ricompensa).
+Potresti anche trovare un terminale con frammenti di registrazioni audio del Capo Sicurezza Thorne, che descrive il panico crescente e gli ordini contraddittori prima del silenzio totale."
+// Questi log potrebbero fornire indizi sulla natura delle creature o sulla paranoia interna.
+
+DEPOSITI_USCITA:
+"Dopo aver recuperato quello che potevi, o aver deciso che il rischio è troppo alto per continuare a cercare, trovi un portellone di servizio che sembra condurre più in profondità nel complesso.
+Echo: 'Questo percorso sembra ricongiungersi con il corridoio principale che porta verso i settori interni. Prossima destinazione probabile: la giunzione con gli altri percorsi esplorativi.'"
+Porta a -> Avvicinamento_Tartarus
+
+F.2) PERCORSO RESIDENZIALE (Knots: Residenziale_Entrata, Residenziale_Orrore, Residenziale_Scoperte)
+
+Concetto: Enfatizzare l'orrore psicologico e la tragedia umana. Le "Sanguisughe Neurali" potrebbero non essere solo nemici diretti, ma potrebbero causare allucinazioni o manipolare l'ambiente se si viene morsi/infettati temporaneamente. Trovare diari personali, registrazioni di residenti disperati.
+RESIDENZIALE_ENTRATA:
+"Scegli il percorso dritto, verso quello che le mappe frammentarie indicano come il Settore Residenziale. Il corridoio si restringe, l'architettura diventa meno industriale e più... funzionale, sebbene ora in rovina. Porte di alloggi personali fiancheggiano entrambi i lati, molte ammaccate, sfondate o sigillate con saldature improvvisate dall'interno. Un silenzio innaturale grava sull'aria, rotto solo dal gocciolio occasionale di liquidi sconosciuti e da un lontano, quasi impercettibile, lamento.
+Echo: 'Sergente, rilevo tracce organiche residue diffuse e fluttuazioni ambientali anomale. Si consiglia estrema cautela. Non ci sono ostili meccanici attivi segnalati, ma... questo non significa che sia sicuro.'
+L'atmosfera è spettrale. Senti il peso delle vite che qui sono state spezzate."
+
+RESIDENZIALE_ORRORE:
+"Ti addentri. Le macchie scure sui muri e sul pavimento sono inequivocabilmente sangue secco, a volte mischiato a una sostanza mucosa e iridescente. Profondi graffi solcano le pareti metalliche. In una delle stanze aperte, vedi una scena agghiacciante: un tavolo apparecchiato per un pasto mai consumato, ora coperto di polvere e di quella strana muffa aliena. Su una sedia, uno scheletro in tuta civile, la testa riversa all'indietro in un muto grido.
+Improvvisamente, qualcosa cade dal soffitto davanti a te. È una Sanguisuga Neurale, una creatura vermiforme, traslucida, con una miriade di piccoli uncini attorno a una bocca circolare. Si contorce sul pavimento, cercando di raggiungerti.
+Echo: 'Attenzione! Sanguisuga Neurale! Eviti il contatto fisico. I rapporti preliminari suggerivano che il loro morso può indurre disorientamento, allucinazioni e, in casi estremi, controllo neurale temporaneo.'
+
+* [Schiacciala rapidamente col piede]
+// Successo facile per una singola, ma potrebbe attirarne altre se ce ne sono.
+* [Usa un'arma da fianco per eliminarla a distanza]
+// Sicuro, ma consuma munizioni.
+* [Cerca di catturarla o studiarla (molto rischioso)]
+// Potrebbe portare a una scoperta scientifica minore per Echo, o a un'infezione temporanea per Rex.
+// Se infettato: ~rex_allucinato = true (temporaneamente). Questo potrebbe alterare le descrizioni testuali successive, far vedere a Rex cose che non ci sono, o sentire voci. Echo dovrebbe cercare di riportarlo alla realtà.
+Mentre esplori, potresti trovare stanze con:
+
+Diari olografici: Frammenti di vita quotidiana che si trasformano in panico. "Giorno 7 dall'isolamento. I rumori dai laboratori sono... peggiorati. Hanno smesso di portarci il cibo." "Qualcuno ha visto il Dr. Aris? Non risponde alle chiamate. Dicono che sia andato volontario per un 'nuovo trattamento'."
+Disegni infantili: Raffigurazioni ingenue di mostri o di scienziati che diventano "cattivi".
+Barricate disperate: Stanze in cui i residenti hanno cercato invano di proteggersi.
+RESIDENZIALE_SCOPERTE (Area di Riflessione e Possibile Incontro):
+"In una delle stanze meno danneggiate, trovi un terminale ancora funzionante. Contiene comunicazioni frammentate tra i residenti e l'amministrazione del complesso. L'ultima è un messaggio di evacuazione generale, mai trasmesso, interrotto a metà.
+Echo: 'Sembra che il collasso sia stato rapido e totale. La disinformazione e il panico hanno giocato un ruolo significativo.'
+Mentre Echo parla, senti un rumore provenire da un armadietto chiuso.
+
+* [Apri l'armadietto con cautela]
+RESIDENZIALE_ARMADIETTO: "Dentro, rannicchiato, trovi un tecnico del complesso, vivo ma in stato catatonico, gli occhi sbarrati dal terrore. Mormora frasi sconnesse sul 'Canto di Thanatos' e sugli 'occhi nelle pareti'. Non sembra una minaccia, solo un'anima spezzata."
+* "Prova a parlargli, a calmarlo."
+"Rex: 'Ehi, amico. Sono qui per aiutare.' Il tecnico non reagisce, continua a mormorare. Echo: 'Soffre di un grave shock psicologico, Sergente. Dubito che possa fornirci informazioni utili nel suo stato attuale.'"
+// Potrebbe dare un piccolo oggetto (una chiave, un codice) che teneva stretto, senza rendersene conto.
+* "Echo, puoi fare qualcosa per lui?"
+"Echo: 'Potrei somministrargli un sedativo leggero dal mio kit medico, se lo ritiene necessario, ma non posso garantire un recupero. E non abbiamo tempo per una terapia intensiva.'
+* "Fallo. Almeno non soffrirà più." ~ adrenalina_sintetica -= (1 se usata come risorsa per il sedativo improvvisato?) o un flag morale ~ rapporto_echo +=1 (compassione?)
+* "Lascialo stare. Non possiamo appesantirci." // Scelta dura
+* [Lascialo nell'armadietto e vai via]
+"Decidi che non puoi fare nulla. Lo lasci al suo destino, un altro fantasma di Tartarus."
+* [Ignora l'armadietto e prosegui]
+RESIDENZIALE_USCITA:
+"Lasci alle spalle gli orrori silenziosi del Settore Residenziale, il peso delle vite perdute che ti grava sulle spalle. Un'ampia porta anti-esplosione, parzialmente divelta, segna l'uscita.
+Echo: 'Questo dovrebbe condurci verso le sezioni di collegamento. L'esperienza in questo settore suggerisce che la minaccia non è solo fisica, ma anche psicologica.'"
+Porta a -> Avvicinamento_Tartarus
+
+F.3) PERCORSO LABORATORI SECONDARI (Knots: LabSecondari_Entrata, LabSecondari_Esperimenti, LabSecondari_PuzzleEtico)
+
+Concetto: Dare un assaggio diretto degli esperimenti legati a Thanatos. Le creature qui potrebbero essere prototipi falliti, instabili, o mostrare capacità bizzarre. Introdurre un puzzle ambientale legato agli esperimenti o una scelta etica con una creatura sofferente ma potenzialmente pericolosa.
+LABSECONDARI_ENTRATA:
+"Opti per il percorso a destra, verso i Laboratori Secondari. Il corridoio si fa più sterile, le pareti rivestite di piastrelle bianche ora macchiate di fluidi sconosciuti. L'odore è un assalto ai sensi: un cocktail rivoltante di carne in decomposizione, formaldeide, ammoniaca e un sottofondo metallico e ozonizzato. Senti il ronzio di macchinari complessi e, occasionalmente, un gorgoglio umido o uno stridio soffocato provenire da dietro porte sigillate con la dicitura 'AREA DI QUARANTENA BIOHAZARD IV'.
+Echo: 'Sergente, rilevo multiples biosignature anomale e instabili più avanti. Alta concentrazione di particolato biologico nell'aria. Consiglio di attivare i filtri di massima protezione del suo casco. Questo è chiaramente un'area di sperimentazione attiva, o lo era fino a poco tempo fa.'"
+
+LABSECONDARI_ESPERIMENTI:
+"Entri in un laboratorio più grande. Vasche di coltura più piccole, molte infrante e svuotate, il liquido nutritivo melmoso e verdastro sparso sul pavimento. Tavoli operatori con strumenti chirurgici dall'aspetto sinistro. Gabbie rinforzate, contorte e sfondate dall'interno.
+Vedi diverse creature muoversi nelle ombre:
+
+'Scuttlers': Piccole creature simili a insetti, ma con pelle traslucida che mostra organi pulsanti. Si muovono in sciami e possono sputare un acido debole.
+'Gorgers': Umanoidi grottescamente gonfi, la pelle tesa e piena di gas. Esplodono se colpiti o se si avvicinano troppo, rilasciando una nube tossica.
+'Striscianti Cerebrali': Simili a cervelli nudi con tentacoli, si attaccano al soffitto e cercano di cadere sulle prede per controllarle o paralizzarle.
+Affronti queste minacce mentre cerchi un'uscita. In un terminale funzionante, potresti trovare note di ricerca:
+'Log del Dr. S. Reichart: Prototipo 7.3.2 (Gorgers) mostra una preoccupante instabilità metabolica. Rischio di detonazione spontanea troppo elevato. Ma la capacità di stoccaggio di gas nervino è... promettente. Meridian insiste per accelerare i test di vitalità.'
+'Log Assistente Jian Li: Ho visto cosa fanno agli 'scarti'. Non riesco a dormire. Il Progetto Thanatos non è evoluzione, è abominio. Ho provato a parlarne con Aris del settore residenziale, ma... Il log si interrompe.'
+~ conosce_log_reichart_li = true
+
+LABSECONDARI_PUZZLEETICO (Nuova Area/Incontro):
+"In una stanza laterale, illuminata da una luce rossa d'emergenza, trovi una singola creatura umanoide in una grande vasca di contenimento di vetro infrangibile, ma crepata in più punti. È collegata a macchinari che sembrano infliggerle dolore costante, con scariche elettriche intermittenti. La creatura è chiaramente un esperimento fallito, orribilmente deforme, ma i suoi occhi... i suoi occhi sono stranamente lucidi e ti fissano con un'espressione che sembra implorare. Accanto alla vasca, una console di controllo con due leve chiaramente etichettate: 'STERILIZZAZIONE D'EMERGENZA' e 'RILASCIO PROTOCOLLO DI OSSERVAZIONE'.
+Echo: 'Sergente, questa creatura è un ibrido umano-alieno, stadio iniziale. I suoi parametri vitali sono estremamente instabili. La procedura di 'sterilizzazione' la ucciderebbe istantaneamente. Il 'rilascio'... non è chiaro cosa comporterebbe. Potrebbe attaccare, o semplicemente morire una volta sconnessa dai sistemi di supporto.'
+
+* [Attiva 'STERILIZZAZIONE D'EMERGENZA']
+"Con un gesto deciso, abbassi la leva. La creatura ha un ultimo spasmo violento, poi si accascia. Un sottile filo di fumo sale dal suo corpo. Pace, finalmente. pensi, con un peso sul cuore."
+~ scelta_etica_laboratorio = "eutanasia"
+// Possibile impatto sul morale di Rex, o un commento di Echo sulla necessità vs compassione.
+* [Attiva 'RILASCIO PROTOCOLLO DI OSSERVAZIONE']
+"Tiri la leva del rilascio. I macchinari si spengono, i cavi si ritraggono. La creatura cade sul fondo della vasca, poi, lentamente, si alza. Ti fissa.
+// Bivio Secondario:
+Se la creatura è pacifica: "Emette un suono lamentoso, quasi un ringraziamento, poi indica un pannello nascosto nel muro prima di accasciarsi, morta. Dietro il pannello, trovi un campione di siero sperimentale adrenalina_sintetica +=1 o un codice di accesso." ~ creatura_aiutata_lab = true
+Se la creatura è ostile: "Con un urlo agghiacciante, la creatura si scaglia contro il vetro della vasca, che cede. Ti attacca con una furia disperata. Devi abbatterla." ~ combattimento_creatura_rilasciata = true
+* [Ignora la creatura e la console e cerca l'uscita]
+"Decidi che non è un tuo problema. Lasci la creatura al suo destino, qualunque esso sia. Il suo sguardo ti perseguiterà."
+~ scelta_etica_laboratorio = "ignorata"
+LABSECONDARI_USCITA:
+"Superati gli orrori di questi laboratori, trovi una porta di decontaminazione che conduce a un corridoio più pulito, sebbene non meno minaccioso.
+Echo: 'Abbiamo attraversato i laboratori secondari. Le informazioni e le esperienze qui raccolte suggeriscono che il Progetto Thanatos è ancora più pericoloso e incontrollato di quanto previsto dall'intelligence. Dobbiamo prepararci al peggio.'"
+Porta a -> Avvicinamento_Tartarus
+
+SEZIONE G: AVVICINAMENTO A TARTARUS (ESPANSIONE)
+
+Concetto: Rendere la transizione ancora più marcata e disturbante. La Porta di Tartarus dovrebbe essere un vero e proprio "guardiano della soglia". I metodi di accesso potrebbero avere conseguenze più specifiche o richiedere risorse diverse.
+1. TRANSIZIONE_ARCHITETTONICA (Estensione Sensoriale e Psicologica):
+"Dopo aver superato con fatica i settori intermedi, qualunque sia stata la tua scelta e gli orrori che hai affrontato, ti inoltri attraverso corridoi che subiscono una trasformazione graduale e sempre più inquietante. L'architettura metallica e brutalista, già aliena, cede il passo a forme attivamente, aggressivamente organiche. Le pareti non sembrano più costruite, ma cresciute. Pulsano debolmente di una luce interna color ambra o verde malato, venate da tubature che si contraggono ritmicamente come arterie gigantesche. Pannelli traslucidi e chitinosi lasciano intravedere complessi sistemi filamentosi, simili a fasci nervosi esposti, che sfrigolano di bio-elettricità. L'odore cambia radicalmente: non più solo metallo freddo, ozono e disinfettante, ma un fetore dolciastro e penetrante di crescita innaturale, di secrezioni aliene e di... coscienza. Senti quasi una pressione mentale, un ronzio di fondo che non è sonoro, ma percepibile, come se l'intera struttura fosse una singola, vasta entità dormiente.
+Echo: 'Sergente, la struttura sta diventando progressivamente più integrata con la biomassa aliena. Rilevo un aumento esponenziale delle emissioni energetiche e delle interferenze psioniche. È possibile che la stessa architettura sia... senziente a un certo livello. O controllata da una coscienza centrale.'"
+Il tuo passo si fa più pesante. Ogni ombra sembra muoversi. Ogni suono sembra amplificato. La sensazione di essere osservato, digerito, è quasi insopportabile."
+
+2. PORTA_TARTARUS (Descrizione Amplificata):
+"Finalmente, dopo quella che sembra un'eternità passata a navigare questo incubo biomeccanico, raggiungi una struttura che può essere descritta solo come una porta. Ma non è una semplice porta. È un'opera monumentale di bio-ingegneria aliena, un enorme sfintere di chitina scura e metallo fuso che si contrae lentamente, come se respirasse. Al centro, una fessura verticale pulsa di una luce cremisi, invitante e terrificante allo stesso tempo. Fili di una sostanza simile a muco denso colano dai bordi. Sul pannello di controllo adiacente, fuso rozzamente nella biomassa, simboli alieni indecifrabili lampeggiano con una luce verdastra. Sotto di essi, inciso a laser con mano tremante, il testo in inglese standard: 'BIOLOGICAL ENGINEERING DIVISION - LEVEL OMEGA - RESTRICTED ACCESS - PROJECT THANATOS - LASCIATE OGNI SPERANZA VOI CH'ENTRATE'. L'ultima parte è chiaramente un'aggiunta non ufficiale, un graffito di disperazione.
+Un brivido freddo ti percorre la schiena nonostante la temperatura interna dell'armatura. Ci sei. Questo è l'ingresso al cuore pulsante dell'orrore: Tartarus."
+
+3. METODI_ACCESSO (Conseguenze Dettagliate e Nuove Opzioni Minori):
+
+[Intelligenza Acquisita (Datapad Gremlin)]
+"Inserisci il datapad recuperato dal Gremlin nell'interfaccia umana della console. Dopo un attimo di tensione, le luci del pannello diventano verdi. La 'porta' sfinterica si contrae e si apre con un suono umido e risucchiante, rivelando un passaggio oscuro.
+Echo: 'Accesso autorizzato. Sembra che i codici del tecnico fossero ancora validi. Entrata silenziosa, livello di allerta invariato.'
+~ allerta_generale (invariata o ridotta se era alta).
+// Potrebbe dare un piccolo insight sulla funzione del tecnico il cui datapad è stato usato.
+[Strumento Improvvisato (Attrezzo Multifunzione)]
+"Utilizzi l'attrezzo multifunzione per forzare i meccanismi di blocco del pannello di controllo. Scintille volano, e dopo qualche tentativo andato a vuoto, senti un clack soddisfacente. La porta si apre con un cigolio protestante e un getto d'aria viziata.
+Echo: 'Accesso forzato con successo. Tuttavia, il sistema ha registrato un tentativo di intrusione. ~ allerta_generale += 1. Potremmo aspettarci una risposta più rapida all'interno.'
+// L'attrezzo potrebbe danneggiarsi leggermente: ~attrezzo_multifunzione_usato_una_volta = true
+[Occhio Clinico (Ricerca Entrata Alternativa)]
+"Echo, analizza la struttura. Deve esserci un'entrata alternativa, una condotta di servizio, una breccia strutturale..."
+"Echo: 'Sto eseguendo una scansione a corto raggio più dettagliata... Rilevo una debole anomalia strutturale circa quindici metri a destra della porta principale. Sembra una sezione di parete biomeccanica meno densa, forse un punto di crescita più recente o un vecchio accesso di manutenzione ora quasi completamente sigillato dalla biomassa.'
+* "Proviamo a forzare quel punto debole."
+// Potrebbe richiedere una piccola carica esplosiva (se disponibile) o uno sforzo fisico con un attrezzo, o l'uso di un'arma potente. Rumoroso.
+// Successo: Si apre un passaggio stretto e organico. ~ allerta_generale += 2 (rumore significativo).
+// Fallimento: La parete è troppo resistente, o si innesca un meccanismo di difesa locale (gas, tentacoli retrattili).
+* "No, troppo incerto. Restiamo sui metodi più diretti." -> Torna alle altre opzioni.
+[Forza Incontrollata (Carica Esplosiva)]
+"Piazzi una carica esplosiva sulla sezione più vulnerabile della porta. Ti metti al riparo. L'esplosione è assordante e squarcia un buco frastagliato nella biomassa pulsante. Fumo acre e pezzi di chitina riempiono l'aria.
+Echo: 'Accesso... ottenuto, Sergente. Ma temo che l'intero complesso ora sappia del nostro arrivo. ~ allerta_generale = 5 (massima). Preparati a una resistenza pesante e immediata.'
+// Potrebbe danneggiare l'integrità strutturale locale, causando crolli minori o instabilità più avanti.
+NUOVA OPZIONE: [Interazione Psionica/Empatica (Solo se Rex ha avuto esperienze particolari, es. parassita lieve, o se Echo sviluppa capacità inattese)]
+Concetto: Un modo non convenzionale, molto rischioso e dipendente da sviluppi narrativi precedenti.
+"Mentre osservi la porta, quella strana pressione mentale si intensifica. Se Rex ha avuto un'esposizione precedente a influenze psioniche o aliene dirette:
+* [Cerca di... 'connetterti' con la porta, di 'sentire' cosa vuole.] (Molto rischioso, potrebbe portare a danni mentali, corruzione o un'apertura inaspettata)
+"Chiudi gli occhi, concentrandoti sulla sensazione, sul ronzio. È come cercare di afferrare il fumo. Immagini, frammenti di coscienza aliena ti invadono... dolore... fame... obbedienza a qualcosa di più grande...
+// Esito 1: Controllo momentaneo. La porta si apre lentamente, come per un atto di volontà. ~rex_stress_mentale +=1, ~allerta_generale (invariata). Echo: 'Sergente, cosa... cosa ha fatto? I miei sensori sono impazziti per un momento.'
+// Esito 2: Rigetto violento. Un'ondata di dolore psichico ti respinge. ~condizione_fisica = "ferita" (mal di testa lancinante, nausea), ~rex_stress_mentale +=2. La porta rimane chiusa, forse ora più ostile.
+// Esito 3: Visione. Ottieni una visione confusa di ciò che c'è dentro Tartarus o del Dr. Meridian, ma la porta non si apre. ~indizio_visione_porta = true.
+(Questa opzione dovrebbe essere rara e ben contestualizzata).
+Indipendentemente dal metodo:
+"Il passaggio oltre la porta di Tartarus si apre davanti a te, un baratro oscuro che emana un freddo innaturale e un fetore ancora più concentrato di quello sentito finora. Stai per entrare nella tana del lupo... o di qualcosa di molto, molto peggio."
+Porta a -> Tartarus_Ingresso
+
+IL CUORE DELL'ORRORE E IL CONFRONTO
+
+SEZIONE H: TARTARUS - CUORE DELL'ORRORE (ESPANSIONE)
+
+Concetto Generale: Questo è il culmine dell'orrore ambientale. L'atmosfera deve essere opprimente, le scoperte nauseabonde e inquietanti. Ogni elemento dovrebbe urlare "follia scientifica" e "abominio biologico".
+1. RIVELAZIONE_HORROR (Estensione Visiva, Sonora e Olfattiva)
+
+Testo Narrativo Esteso:
+
+"Varchi la soglia di Tartarus, e l'aria stessa sembra solidificarsi nei tuoi polmoni, un miasma denso e freddo pregno di un orrore tangibile e di un odore indescrivibile – un cocktail dolciastro di formaldeide, sangue vecchio, fluidi amniotici alieni e qualcosa di metallico e bruciato, come circuiti sovraccarichi. Ti trovi di fronte a uno spettacolo che farebbe impallidire le fantasie più malate di un macellaio folle, un panorama che ti gela il sangue nelle vene e fa urlare ogni fibra del tuo essere in una muta protesta.
+
+Il laboratorio è un'immensa, cattedrale profana dedicata all'abominio scientifico. Non ci sono pareti definite, ma piuttosto una vasta caverna biomeccanica, le cui superfici pulsano di una luce verdastra e malsana, come l'interno di una bestia colossale. Vasche di coltura gigantesche, grandi come piccole navette da sbarco, sono incastonate ovunque, alcune appese al soffitto organico come frutti mostruosi, altre emergenti dal pavimento come tumori di vetro e metallo. All'interno, illuminate da una luce interna spettrale, forme di vita contorte e innaturali fluttuano in un liquido ambrato e torbido. Alcune sono inequivocabilmente, tragicamente umane, o lo erano: corpi fusi con tecnologia aliena, arti multipli innestati, gabbie toraciche aperte per rivelare organi pulsanti che non dovrebbero esistere. Altre... altre sono puro incubo, amalgami chitinosi e pulsanti di carne, metallo e cavi, tentacoli che si agitano debolmente, occhi multipli che si aprono e ti fissano con vuota consapevolezza. Un ronzio basso e costante permea l'aria, intervallato da gorgoglii umidi, sibili di vapore e, occasionalmente, un flebile lamento o un improvviso, violento spasmo da una delle vasche.
+
+Puoi sentire il battito del tuo cuore rimbombare nel casco, o forse è il battito stesso di questo luogo infernale.
+
+* [Osserva più da vicino una delle vasche con un soggetto umanoide]
+TARTARUS_OSSERVA_VASCA_UMANOIDE: "Ti avvicini, con il fucile pronto, a una vasca vicina. Dentro, fluttua quello che un tempo doveva essere un uomo. Ora, la sua spina dorsale è fusa con cavi metallici che si collegano a un apparato sulla sua testa, i suoi occhi sono sostituiti da lenti ottiche rosse, e dal suo petto spuntano appendici chitinose. Si muove lentamente, come in un incubo. Noti una targhetta sulla vasca: 'Soggetto 117 - Integrazione Neurale Stabile - Protocollo Thanatos Fase 2'. Sotto, una nota scritta a mano: 'Resistenza psicologica elevata. Aumentare dosaggio Neuro-Lax.'"
+Echo: 'Sergente, questo... questo è al di là di ogni violazione etica conosciuta. Stanno trasformando esseri umani.' La sua voce, per la prima volta, tradisce qualcosa di simile allo shock.
+~rex_orrore_visto +=1
+~rapporto_echo +=1 (condivisione dell'orrore)
+* [Esamina un terminale di monitoraggio vicino]
+TARTARUS_TERMINALE_DATI: "Attivi un terminale. Schermate piene di dati biologici scorrono velocemente: sequenze genetiche aliene, tassi di mutazione, livelli di aggressività. Un file video si apre brevemente: mostra una creatura simile a uno Stalker, ma con innesti che sembrano... umani, mentre viene sottoposta a test di combattimento contro prigionieri. Chiudi il file con un conato di vomito represso."
+Echo: 'Stanno creando armi biologiche senzienti, usando la nostra stessa specie come base. E documentano tutto con fredda efficienza.'
+~conosce_dettagli_esperimenti_thanatos = true
+* [Prosegui verso il centro del laboratorio, cercando di non guardare troppo]
+"Serri i denti e avanzi, cercando di ignorare gli orrori che ti circondano. Ma le immagini si imprimono a fuoco nella tua retina."
+2. COMPUTER_CENTRALE (Descrizione e Interazione Potenziale)
+
+Testo Narrativo Esteso:
+
+"Una fitta e complessa rete di tubi traslucidi, pulsanti di fluidi luminescenti di vari colori, e cavi spessi come braccia, si snodano da ogni vasca di coltura convergendo verso il centro di questa vasta abominazione. Lì, si collegano a un imponente computer centrale, un monolito di tecnologia aliena e umana fusa insieme, nero e lucido, che pulsa di una luce verde smeraldo, sinistra e ipnotica, come l'occhio di un dio crudele e onniveggente. Dalla sua superficie emanano calore e un leggero odore di ozono, e un costante, basso lamento cibernetico, quasi un canto funebre elettronico. Schermi olografici più piccoli fluttuano attorno ad esso, mostrando complesse equazioni biologiche, mappe stellari con rotte di infezione simulate e, occasionalmente, il volto contorto di un soggetto sperimentale che urla in silenzio.
+
+Echo: 'Sergente, quello è il Nexus del Progetto Thanatos. Tutte le informazioni, tutti i controlli, risiedono lì. È il nostro obiettivo primario per il recupero dati... e il punto più logico per un sabotaggio catastrofico.'
+
+E al centro di tutto questo, chino su un pannello di controllo incastonato nella macchina, le dita che danzano veloci su un'interfaccia olografica, c'è una figura solitaria, vestita con un camice da laboratorio bianco, ora macchiato di sangue e di altre sostanze indefinibili. È di spalle, completamente assorto nel suo lavoro. Non si è ancora accorto della tua presenza."
+
+3. DR_MERIDIAN_INTRODUZIONE (Costruzione della Tensione)
+
+Testo Narrativo Esteso:
+
+"La figura al computer centrale è immobile, quasi parte della macchina stessa. La sua concentrazione è palpabile.
+Echo: 'Mad Dog... quello... quello dev'essere il Dottor Armitage Meridian,' la voce di Echo è appena un sussurro, tinto di un'emozione che rasenta lo sconcerto, forse persino una traccia di repulsione. 'Ricercatore capo del Progetto Thanatos. I file dell'intelligence lo descrivevano come 'estremamente brillante ma eticamente compromesso' dalla sua stessa ricerca, ben prima che arrivassero loro. Ora... ora capisco cosa intendevano. Guardalo, Sergente. C'è qualcosa di profondamente sbagliato in lui, persino da questa distanza. La sua postura, l'aura che emana...'
+
+Mentre ti avvicini furtivamente, cercando di usare le vasche di coltura come copertura, noti dettagli inquietanti attorno alla postazione di Meridian. Strani artefatti alieni sono integrati nella console. Un odore particolare, diverso da quello del laboratorio, più... personale e metallico, emana da lui. E i cavi che si collegano al Nexus non sembrano terminare tutti nella macchina; alcuni scompaiono sotto il suo camice, vicino alla nuca.
+
+Sei a una ventina di metri. È ora di decidere come affrontare il cuore di questo incubo."
+
+4. SCELTE_FINALI_PRINCIPALI (Espansione e Sfumature)
+
+Concetto: Aggiungere opzioni o approcci leggermente diversi all'interno delle scelte principali, e rendere le potenziali conseguenze più esplicite o complesse.
+
+Testo Narrativo Esteso:
+
+"Il destino di innumerevoli vite potrebbe dipendere dalla tua prossima mossa. Meridian è lì, ignaro. Il Nexus pulsa. L'aria è carica di morte e di una terribile, perversa creazione.
+
+[Neutralizzazione Preventiva Silenziosa] "Non posso rischiare che parli, che scappi, che attivi qualche trappola. Lo elimino ora, in silenzio, prima che sappia che sono qui."
+APPROCCIO_MERIDIAN_STEALTH:
+* "Uso il coltello/arma silenziata. Un colpo mortale e preciso."
+// Richiede alta abilità stealth o un buon posizionamento. Se fallisce, Meridian si allerta e potrebbe contrattaccare o attivare difese.
+// Successo: Meridian muore senza un suono. Hai accesso al Nexus, ma hai perso ogni possibilità di interrogarlo o capire appieno le sue motivazioni.
+* "Echo, puoi creare un sovraccarico localizzato vicino a lui? Qualcosa che sembri un incidente?" (Se Echo ha sviluppato capacità offensive/sabotaggio)
+// Rischioso, potrebbe danneggiare il Nexus. Echo potrebbe rifiutare se troppo pericoloso per i dati.
+// Successo: Un'esplosione minore lo neutralizza. Allerta generale nel laboratorio potrebbe comunque scattare.
+[Confronto Diretto] "Voglio sentire cosa ha da dire questo macellaio. Voglio guardarlo negli occhi e capire perché. Poi deciderò il suo destino."
+APPROCCIO_MERIDIAN_CONFRONTO:
+* "Mi avvicino e gli parlo a voce alta. Che sappia che sono qui."
+// Porta direttamente al dialogo con Meridian. Imprevedibile.
+* "Sparo un colpo di avvertimento vicino a lui per attirare la sua attenzione."
+// Più aggressivo, potrebbe metterlo subito sulla difensiva.
+[Priorità ai Dati, poi Meridian] "L'obiettivo sono i dati. Cerco di raggiungere il Nexus e avviare il download prima di occuparmi di lui. Forse posso farlo senza che se ne accorga."
+APPROCCIO_NEXUS_PRIMERO:
+// Molto rischioso. Richiede un ottimo stealth e forse l'aiuto di Echo per distrarre Meridian o hackerare una console secondaria.
+// Successo parziale: Inizi il download, ma Meridian si accorge. Ora devi gestire lui mentre Echo tenta di completare il trasferimento.
+// Fallimento: Meridian ti scopre prima che tu possa iniziare, attivando allarmi o contromisure.
+[Sabotaggio Immediato e Totale] "Questo posto deve bruciare. Ora. Trovo il modo di sovraccaricare il Nexus e far saltare in aria tutto, Meridian compreso. I dati sono secondari rispetto alla distruzione di questa minaccia."
+APPROCCIO_SABOTAGGIO_TOTALE:
+// Azione disperata. Richiede di trovare il punto debole del Nexus (forse Echo può identificarlo).
+// Conseguenza: Probabile attivazione di protocolli di autodistruzione o di contenimento estremo. Fuga disperata. Meridian diventerà estremamente ostile e protettivo nei confronti della sua "creazione".
+NUOVA OPZIONE: [Osservazione Prolungata / Attesa Strategica] "Resto nascosto e osservo Meridian. Cerco di capire i suoi schemi, le sue vulnerabilità, o se aspetta qualcuno o qualcosa, prima di agire."
+APPROCCIO_OSSERVAZIONE_MERIDIAN:
+// Potrebbe rivelare un dettaglio cruciale: un momento in cui si allontana dalla console, una password che mormora tra sé, una routine di sicurezza che si disattiva periodicamente.
+// Rischio: Più tempo passi, più rischi di essere scoperto da altre pattuglie o sistemi di sicurezza automatici non ancora rilevati.
+// Ricompensa: Potrebbe sbloccare un modo unico per affrontare Meridian o il Nexus, o un dialogo speciale.
+Echo: 'Osservazione prolungata potrebbe fornire vantaggi tattici, Sergente, ma aumenta anche il rischio di esposizione. Proceda con cautela.'
+SEZIONE I: CONFRONTO CON DR. MERIDIAN (ESPANSIONE)
+
+Concetto Generale: Questo è il culmine narrativo e morale. Il dialogo con Meridian deve essere stratificato, le sue argomentazioni seducenti nella loro follia. Le scelte del giocatore qui dovrebbero avere un peso enorme.
+1. RIVELAZIONE_ANTAGONISTA (Dettagli sulla sua "Integrazione")
+
+Testo Narrativo Esteso (se si sceglie il confronto):
+
+"Il Dr. Meridian si volta, non di scatto, ma con una lentezza deliberata, quasi teatrale, come se ti stesse aspettando da sempre, o come se un segnale silenzioso lo avesse avvertito. Il suo volto è quello di un uomo sulla cinquantina, tirato, scavato dalla fatica e da qualcos'altro, da un'intensità febbrile che lo consuma dall'interno. Indossa un camice bianco, ma sotto di esso, lungo il collo e sulle mani, noti sottili filamenti metallici che scompaiono sotto la pelle, pulsando di una debole luce verdastra in sincrono con il Nexus. I suoi occhi... i suoi occhi sono ciò che ti afferra e ti scuote. Non sono più interamente umani. Le iridi sono di un verde innaturale, quasi rettiliano, e sembrano brillare di una debole, fosforescente luce propria, le pupille verticali e dilatate. Un sorriso sottile, indecifrabile, quasi compassionevole, increspa le sue labbra.
+
+'Ah, finalmente. Il soldato.' La sua voce è calma, coltivata, quasi ipnotica, ma con un ronzio sottile, una risonanza disarmonica e metallica che sembra vibrare direttamente nel tuo cranio. Non sembra sorpreso. 'Vi attendevo, Sergente Ransome. O dovrei dire, Mad Dog? Un nome così... primitivo, per un agente del cambiamento come lei.' Si stacca lentamente dalla console, i movimenti fluidi, quasi innaturali. 'L'integrazione... mi ha mostrato molte cose. Il grande disegno. Compreso il vostro imminente, seppur futile, arrivo.'"
+
+2. FILOSOFIA_THANATOS (Monologo Espanso e Interattivo)
+
+Concetto: Il monologo di Meridian può essere interrotto da Rex, con scelte di dialogo che permettono di sfidare, interrogare o persino mostrare un barlume di comprensione (o finzione) per ottenere più informazioni.
+
+Testo Narrativo Esteso:
+
+Meridian fa un gesto ampio, quasi da direttore d'orchestra, verso le vasche pulsanti che vi circondano.
+"'State fraintendendo, Sergente. Voi vedete distruzione, caos, mostri.' Scuote la testa, un'espressione di finta tristezza. 'Io vedo... potenziale. Ordine. Salvezza. Stiamo cercando di salvare l'umanità, non di annientarla.'
+
+* "Salvare l'umanità trasformandola in queste... cose?!" (Sfidante)
+Meridian: "'Cose'? No, Sergente. Li vede come abomini perché il suo paradigma è limitato. Thanatos non è una semplice arma di distruzione di massa, che visione miope e tipicamente militare! È il prossimo passo obbligato. È evoluzione. Guidata, certo, perfezionata da una mente superiore, ma inevitabile. L'umanità come la conoscete – fragile, malata, autodistruttiva, impantanata nelle sue piccole guerre e meschinità – ha i giorni contati. È un vicolo cieco biologico.' Egli si avvicina a una vasca, accarezzando il vetro. 'Noi... io... posso guidarla verso qualcosa di più. Qualcosa di più grande, di più forte, di unito. Una singola coscienza collettiva, immortale, capace di affrontare le vere minacce dell'universo, non di combattersi per scampoli di terra o ideologie fallaci.'"
+* "Chi ti credi di essere? Dio?" (Sprezzante)
+Meridian: "'Dio?' Un concetto così limitante, Sergente. Diciamo piuttosto un... pastore, che guida il suo gregge smarrito verso pascoli più verdi e sicuri. Qualcuno deve prendere le decisioni difficili, quelle che la vostra burocrazia timorosa e la vostra morale antiquata non oserebbero mai contemplare. Il futuro non si costruisce con i referendum, ma con la visione e il coraggio.'"
+* "E 'loro'? Gli alieni che hanno costruito questo posto? Sono tuoi partner in questa 'evoluzione'?" (Indagatore)
+Meridian: (Un lampo fugace nei suoi occhi) "'Loro'... i Precursori, come li chiamo io. Erano visionari, ma la loro opera era incompleta, interrotta. Io l'ho riscoperta, l'ho compresa, l'ho... migliorata. Hanno lasciato gli strumenti, io sto componendo la sinfonia. Thanatos è il mio capolavoro, l'apice della loro eredità e della mia intuizione.'"
+* [Ascolta in silenzio, studiandolo]
+Meridian continua, la sua voce che si fa più appassionata, quasi febbrile:
+"'Pensateci, Sergente Ransome! Niente più malattie, niente più vecchiaia, niente più guerre fratricide. Solo unità, forza, conoscenza condivisa. Un'umanità trascesa, capace di resistere all'entropia dell'universo. Non è forse un obiettivo nobile? Non vale forse qualche... sacrificio iniziale, qualche dolorosa transizione?'"
+
+3. TENTAZIONE_PARASSITA (Descrizione e Offerta più Dettagliata)
+
+Concetto: Il parassita non è solo un oggetto, ma un simbolo della "connessione" che Meridian offre. La sua descrizione e gli effetti se accettato possono essere più elaborati.
+
+Testo Narrativo Esteso:
+
+Con un movimento fluido, quasi ipnotico, Meridian apre un piccolo compartimento nel suo avambraccio, da cui estrae qualcosa. Non sembra provare dolore. Lo depone sul palmo della sua mano, che ora noti essere parzialmente ricoperto da una sottile patina chitinosa e traslucida. È un organismo piccolo e complesso, simile a un gioiello biomeccanico, che si contorce leggermente, pulsando di una debole luce verde e ciano. Sembra un intrico di fibre nervose metalliche e tessuto organico alieno, con minuscole appendici che sagomano l'aria come antenne.
+"'Ho visto il futuro, Sergente Ransome. Un futuro di unità perfetta, di forza oltre ogni vostra più sfrenata immaginazione. Un futuro senza più dolore, senza più solitudine, senza più paura. Un futuro in cui lei, Rex Ransome, potrebbe finalmente mettere a tacere i fantasmi del suo passato, le urla di Cygnus VII.' Come fa a sapere di Cygnus VII? I suoi occhi brillanti, ora completamente alieni, si fissano nei tuoi, penetranti. 'L'integrazione apre le porte della percezione, Sergente. Condividiamo molto più di quanto pensi.'
+Estende la mano con il parassita che pulsa. 'Un piccolo assaggio... un dono. Per capire veramente. Per vedere. Non tema, il processo è... illuminante. Vuole vedere anche lei, Sergente? Vuole finalmente capire il vero significato del sacrificio... e della rinascita?'"
+
+4. SCELTE_MORALI_CRITICHE (Conseguenze Ampliate e Nuove Sotto-Opzioni)
+
+Testo Narrativo Esteso:
+
+Il parassita pulsa nella mano di Meridian. L'aria è tesa. Echo rimane in silenzio, forse analizzando, forse... aspettando la tua decisione.
+
+[Giustizia Sommaria Immediata] "Ho sentito abbastanza delle tue stronzate eretiche. E so abbastanza di Cygnus VII da non fidarmi di chi ci sguazza."
+* "Al diavolo il tuo futuro!" (Spara immediatamente al dottore)
+// Conseguenza: Meridian potrebbe avere delle difese personali potenziate dalla sua 'integrazione'. Potrebbe non cadere subito, o attivare un protocollo d'emergenza. Combattimento finale contro un Meridian potenziato o le sue guardie del corpo biomeccaniche. Accesso al Nexus ancora da conquistare.
+[Sondare l'Abisso / Guadagnare Tempo] "Parli di unità, di assenza di dolore. Ma quello che vedo qui è solo sofferenza e schiavitù."
+* "Spiegami meglio, Meridian. Come può questo... orrore... portare a qualcosa di buono? Convincimi che non sei solo un altro pazzo con manie di grandezza." (Tenta di capire di più, o di trovare una falla nel suo ragionamento/difese)
+// Meridian potrebbe elaborare ulteriormente, rivelando più dettagli sul funzionamento di Thanatos, sulle sue debolezze, o sulla natura della coscienza collettiva che immagina. Potrebbe anche tentare di manipolarti psicologicamente, facendo leva sul tuo trauma.
+// Possibilità di sbloccare opzioni di dialogo uniche o un modo per ingannarlo.
+* "Echo, cosa ne pensi? C'è una logica in questa follia?" (Coinvolgi Echo nel dibattito)
+// Echo potrebbe analizzare le affermazioni di Meridian, confutarle con dati scientifici o etici, o persino (in uno scenario estremo e a seconda del suo sviluppo) mostrare una strana curiosità o un'analisi puramente logica che spaventa Rex.
+
+IL CUORE DELL'ORRORE E IL CONFRONTO
+
+SEZIONE H: TARTARUS - CUORE DELL'ORRORE (ESPANSIONE)
+
+Concetto Generale: Questo è il culmine dell'esplorazione. L'orrore qui deve essere palpabile, opprimente e multiforme, toccando sia il disgusto viscerale sia un profondo disagio psicologico. Ogni elemento dovrebbe urlare "Progetto Thanatos".
+1. RIVELAZIONE_HORROR (Estensione Massima, Impatto Sensoriale e Psicologico):
+"Varchi la soglia di Tartarus, e l'aria stessa sembra solidificarsi nei tuoi polmoni, densa di un orrore tangibile e di un odore indescrivibile – un cocktail nauseabondo di formaldeide, sangue vecchio, metallo surriscaldato, ozono e qualcos'altro, un sentore dolciastro e organico di putrefazione aliena su vasta scala. Ti trovi di fronte a uno spettacolo che farebbe impallidire le fantasie più malate di un macellaio folle, un panorama che ti gela il sangue nelle vene e fa urlare ogni fibra del tuo essere in una muta protesta.
+
+Il laboratorio è un'immensa, cattedrale profana dedicata all'abominio scientifico e alla perversione della vita. Non ci sono angoli retti, solo curve organiche e pulsanti. Le pareti stesse sembrano fatte di carne e osso fusi con cavi e metallo. Vasche di coltura gigantesche, grandi come piccole navette, pulsano di una luce verdastra e giallastra, malsana e intermittente. Al loro interno, immerse in un liquido amniotico torbido, fluttuano forme di vita in vari, grotteschi stadi di sviluppo:
+
+Alcune sono inequivocabilmente, tragicamente umane – o lo erano. Corpi contorti, fusi con tecnologia aliena luminescente, arti multipli innestati rozzamente, volti congelati in maschere di eterna agonia.
+Altre sono puro incubo: amalgami chitinosi e pulsanti di carne, metallo e cavi, con occhi multipli che ti fissano dal liquido torbido, fauci zannute che si aprono e chiudono lentamente. Riconosci frammenti di Stalker, di Gremlin, persino di creature che avevi solo intravisto nei laboratori secondari, ora 'perfezionate'.
+In una vasca particolarmente grande, una forma colossale, appena abbozzata, si contorce lentamente. Sembra quasi... un tentativo di replicare o far evolvere qualcosa di vasto, di antico.
+Tubi spessi come tronchi d'albero, pulsanti come vene varicose, collegano ogni vasca, trasportando fluidi colorati e bio-energia. Il suono dominante è un ronzio profondo e vibrante, punteggiato da gorgoglii umidi, sibili di vapore e, occasionalmente, un lontano, straziante lamento che sembra provenire dalle pareti stesse.
+
+Echo: 'Sergente... i miei sensori... faticano a processare... la quantità di bio-energia e di... deviazioni genetiche presenti in questa sala. Questo... questo va oltre ogni nostra peggiore previsione. Il Progetto Thanatos è... una fabbrica di mostri su scala industriale.' La sua voce, di solito così controllata, tradisce una traccia di... repulsione sintetica."
+
+2. NUOVA INTERAZIONE: IL CAMPO DI STASI / LA SOFFERENZA
+
+Concetto: Prima di arrivare al computer centrale, Rex potrebbe imbattersi in un'area specifica che illustra ulteriormente la crudeltà del progetto o offre una scelta morale minore.
+
+Testo Narrativo:
+"Mentre avanzi con cautela su una passerella metallica che sovrasta un groviglio di tubature organiche, noti una serie di nicchie più piccole lungo una parete. All'interno di ognuna, dietro campi di forza crepitanti, ci sono soggetti di esperimenti ancora vivi, ma chiaramente sofferenti. Un marine coloniale a cui sono stati innestati arti meccanici rudimentali che si contraggono spasmodicamente; una scienziata con il cranio aperto e collegato a strani macchinari alieni, i suoi occhi che seguono ogni tuo movimento con terrore muto; una creatura aliena sconosciuta, legata e sezionata mentre è ancora cosciente.
+Un piccolo terminale vicino sembra controllare i campi di stasi.
+Echo: 'Questi individui... sono tenuti in uno stato di agonia controllata, probabilmente per studiare le loro reazioni o per estrarre qualcosa da loro. I campi di stasi prevengono la morte, ma non la sofferenza.'
+
+* [Tenta di disattivare i campi di stasi, per porre fine alla loro sofferenza]
+DISATTIVA_STASI: "Ti avvicini al terminale. Echo: 'Sergente, disattivare i campi potrebbe ucciderli istantaneamente, data la loro condizione. O potrebbe... liberarli, se sono ancora in grado di muoversi. È un rischio.'
+* "Fallo. Nessuno merita questo." -> "Con un comando rapido, disattivi i campi. Alcuni dei soggetti si accasciano immediatamente, finalmente liberi. Il marine ti guarda con un ultimo sprazzo di gratitudine prima che i suoi occhi si velino. La scienziata... sorride debolmente. ~ scelta_etica_tartarus = "eutanasia_collettiva". ~ rapporto_echo +=1 (se apprezza la compassione). Ma una delle creature aliene, liberata, emette un urlo e cerca di attaccare la parete, prima di collassare."
+* "No, troppo rischioso. Non sappiamo cosa succederebbe." -> "Ritiri la mano. Non puoi intervenire. Il peso della loro sofferenza si aggiunge al tuo fardello."
+* [Ignora le nicchie e prosegui]
+"Serri la mascella e tiri dritto. Non puoi salvarli tutti. Non puoi salvare nessuno, forse. La missione prima di tutto. Ma le loro immagini ti si imprimono nella retina."
+3. COMPUTER_CENTRALE (Estensione e Interattività Preliminare):
+"Una fitta e complessa rete di tubi traslucidi e cavi spessi come braccia collegano ogni vasca di coltura a un imponente computer centrale. Non è una macchina come la conosci tu; è un organo biomeccanico gigantesco, un ibrido di silicio, metallo e tessuto nervoso alieno che pulsa di una luce verde smeraldo, sinistra e ipnotica, come l'occhio di un dio crudele. La sua superficie è calda al tatto, e sembra vibrare in sincronia con l'intero laboratorio. Schermi olografici mostrano sequenze genetiche complesse, diagrammi di creature aliene e... mappe stellari che indicano rotte verso sistemi umani.
+
+E al centro di questa ragnatela di follia, chino su un pannello di controllo incastonato nella 'carne' della macchina, c'è una figura solitaria, vestita con un camice da laboratorio macchiato e logoro. Una figura umana. Sembra completamente assorta nel suo lavoro, le dita che si muovono con febbrile rapidità su interfacce luminescenti. Non si è ancora accorta della tua presenza."
+
+4. DR_MERIDIAN_INTRODUZIONE (Costruzione della Tensione e Osservazione):
+"Echo: 'Mad Dog... quello... quello dev'essere il Dottor Armitage Meridian,' la voce di Echo è appena un sussurro, tinto di un'emozione che rasenta lo sconcerto, forse persino la paura. 'Ricercatore capo del Progetto Thanatos. I file dell'intelligence lo descrivevano come 'possibilmente compromesso' dalla sua stessa ricerca. Ora... ora capisco cosa intendevano. Guardalo, Sergente. C'è qualcosa di profondamente sbagliato in lui.'
+
+Ti nascondi dietro una colonna di biomassa pulsante, osservandolo. È completamente calvo, la pelle pallida e tesa sulle ossa del cranio. Sottili cavi luminescenti scompaiono sotto il colletto del suo camice, serpeggiando lungo il collo, come se fosse direttamente collegato alla macchina centrale. Le sue mani, mentre lavorano, sono troppo veloci, i movimenti troppo precisi per essere del tutto umani. Ogni tanto, la sua testa ha un piccolo scatto innaturale, come se stesse ricevendo un impulso diretto.
+
+* [Avvicinati di soppiatto per ascoltare cosa dice o fa]
+OSSERVA_MERIDIAN_AZIONE: "Ti avvicini ancora, usando le vasche come copertura. Lo senti mormorare tra sé e sé, o forse... parlare con la macchina. '...Sì, la sequenza di replicazione è quasi ottimizzata... Le colonie del settore Trappist saranno le prime a ricevere il... dono... La transizione sarà gloriosa... Nessuna resistenza... solo accettazione...' La sua voce è sottile, quasi un sibilo, carica di un entusiasmo febbrile e folle."
+~ info_mormorio_meridian = true
+* [Prepara un'imboscata, scegliendo una posizione vantaggiosa]
+// Ti posizioni per un attacco a sorpresa, valutando le vie di fuga o copertura.
+* [Fatti avanti apertamente, annunciando la tua presenza]
+// Scelta audace, che porterà direttamente al confronto.
+5. SCELTE_FINALI_PRINCIPALI (Revisionate e Ampliate):
+(Queste sono le scelte prima del dialogo diretto, come da documento originale, ma ora informate dall'osservazione)
+
+[Neutralizzazione Preventiva Estrema] "Non posso rischiare che parli o attivi qualcosa. Lo elimino ora, da qui, con un colpo preciso alla testa."
+// Conseguenza: Richiede un tiro molto difficile (se si usa una meccanica). Se fallisce, Meridian viene allertato e potrebbe attivare difese immediate. Se riesce, Meridian crolla. Ma la macchina centrale potrebbe reagire alla sua morte in modi imprevisti (rilascio di creature, blocco dei sistemi, autodistruzione?).
+Echo: 'Sergente, un'azione così drastica potrebbe avere conseguenze catastrofiche e imprevedibili sull'intero sistema. Non sappiamo quanto sia integrato con il laboratorio.'
+[Confronto Diretto Immediato] "Basta nascondersi. È ora di affrontare questo macellaio." (Esci allo scoperto)
+// Porta direttamente a MERIDIAN_CONFRONTO.
+[Priorità ai Dati con Distrazione] "Echo, puoi creare un diversivo minore, un sovraccarico in un sistema secondario, per distrarlo mentre cerco di raggiungere i computer?"
+// Nuova Opzione: Richiede l'abilità di Echo. Potrebbe funzionare, dando a Rex un breve lasso di tempo per interagire con una parte del computer centrale e scaricare dati parziali prima che Meridian se ne accorga. Rischio di allertare Meridian in modo diverso.
+Echo: 'Posso tentare, Sergente. Ma i sistemi qui sono interconnessi in modo complesso. Un diversivo potrebbe... degenerare.'
+[Sabotaggio Immediato e Disperato] "Questo posto è un cancro. Devo trovare il modo di distruggere il computer centrale, ora, anche a costo della mia vita. Meridian è secondario."
+// Conseguenza: Rex cerca punti deboli nel computer centrale per un sabotaggio. Estremamente pericoloso. Meridian interverrà quasi subito. Potrebbe portare a un finale prematuro e catastrofico, o a un combattimento disperato in un ambiente che crolla.
+SEZIONE I: CONFRONTO CON DR. MERIDIAN (ESPANSIONE)
+
+Concetto Generale: Questo è il cuore del conflitto ideologico e morale. Il dialogo deve essere stratificato, permettendo al giocatore di esplorare la follia di Meridian, di sfidarlo, e forse persino di essere tentato o spaventato dalla sua visione.
+1. RIVELAZIONE_ANTAGONISTA (Estensione e Impatto):
+"Sia che tu esca allo scoperto, sia che un tuo tentativo di azione furtiva fallisca, il Dr. Meridian si volta. Non di scatto, ma con una lentezza deliberata, quasi teatrale, come se ti stesse aspettando da sempre. I cavi attaccati al suo collo pulsano di una debole luce verde mentre si gira. Il suo volto è quello di un uomo sulla cinquantina, tirato, scavato dalla fatica e da qualcosa di più profondo, di più alieno. Ma i suoi occhi... i suoi occhi sono ciò che ti afferra e ti scuote. Non sono più interamente umani. Le iridi brillano di una debole, fosforescente luce verde-dorata, le pupille verticali, come quelle di un rettile, si contraggono mentre ti mettono a fuoco. Un sorriso sottile, indecifrabile, quasi compassionevole, increspa le sue labbra sottili.
+
+'Ah, finalmente. Il Sergente Rex 'Mad Dog' Ransome. O ciò che ne resta.' La sua voce è calma, coltivata, quasi melliflua, ma con un ronzio sottile, una risonanza disarmonica e stratificata, come se più voci parlassero all'unisono, appena sotto la soglia dell'udibile. Ti fa accapponare la pelle. 'L'integrazione... ci ha mostrato molte cose. Compreso il vostro... futile arrivo.'"
+
+2. DIALOGO CON MERIDIAN: PRIMO SCAMBIO (Nuovi Bivi e Reazioni di Rex/Echo)
+
+Concetto: Dare a Rex la possibilità di rispondere, di porre domande, di esprimere rabbia o confusione.
+
+Testo Narrativo:
+"Meridian ti squadra da capo a piedi, un cenno del capo quasi impercettibile. 'Sei più... resiliente di quanto i calcoli iniziali suggerissero. Un interessante anomalia nel grande schema.'
+
+* "Che diavolo sei diventato, Meridian? E cosa sono queste... cose?" (Indichi le vasche)
+MERIDIAN_RISPOSTA_TRASFORMAZIONE: "'Diventato? Io sono asceso, Sergente. Ho trasceso i limiti della vostra fragile biologia umana. E queste...' un gesto ampio verso le vasche, '...sono il futuro. La prossima alba dell'umanità. La vera umanità.'"
+* "La mia squadra? Quegli uomini che hai fatto massacrare? Erano umani!"
+MERIDIAN_RISPOSTA_SQUADRA: "'Vite insignificanti, spese per resistere all'inevitabile progresso. Un piccolo prezzo per la salvezza di miliardi. Presto, non ci sarà più morte, né malattia, né guerra... solo unità. Unità sotto Thanatos.'"
+* "Sei un mostro. E questo posto è un inferno."
+MERIDIAN_RISPOSTA_MOSTRO: "'Mostro? Inferno?' Una risata secca, priva di allegria. 'Le definizioni sono così... limitanti, Sergente. Ciò che voi chiamate inferno, noi lo chiamiamo culla. La culla di una nuova specie, superiore in ogni aspetto.'"
+* [Rimani in silenzio, studiandolo, cercando un punto debole]
+MERIDIAN_SILENZIO_REX: "'Silenzioso, osservatore. Bene. Forse c'è ancora una scintilla di intelligenza dietro quegli occhi tormentati. Ascolta, allora, e forse capirai.'"
+Echo (sottovoce, solo a te): 'Sergente, i suoi parametri vitali sono stabili, ma la sua attività cerebrale è... anomala. Rilevo schemi neurali non umani sovrapposti ai suoi. È profondamente integrato con la tecnologia di questo laboratorio.'
+
+3. FILOSOFIA_THANATOS (Espansione e Tentativo di Persuasione):
+"'State fraintendendo, Sergente. Voi vedete distruzione, io vedo creazione. Stiamo cercando di salvare l'umanità, non di annientarla.' La sua espressione è quasi compassionevole, quella di un profeta incompreso. Si avvicina lentamente, i cavi che lo collegano alla macchina centrale che si tendono leggermente. 'L'universo è un luogo freddo e ostile, Sergente Ransome. L'umanità, nella sua forma attuale, è debole, divisa, votata all'autodistruzione. Sprechiamo le nostre vite in conflitti insignificanti, consumati dalla paura e dall'avidità. Thanatos... oh, Thanatos è la risposta. Non è una semplice arma di distruzione di massa, che visione miope e militare! È il catalizzatore. È evoluzione. Guidata, certo, attraverso la saggezza di una civiltà che ha trasceso eoni fa questi vostri piccoli affanni. L'umanità come la conoscete, fragile, effimera, ha i giorni contati. Noi... io... posso guidarvi oltre il baratro. Possiamo renderla qualcosa di più. Qualcosa di più grande, di più forte, di eterno. Una coscienza collettiva, unificata, immortale. Liberi dal dolore, dalla sofferenza, dalla solitudine della vostra individualità.'
+Si ferma a pochi passi da te. 'Immagina, Sergente. Un'umanità che non conosce più la guerra perché è una cosa sola. Un'umanità che può affrontare le vere minacce dell'universo, unita. Questo è il dono di Thanatos. Questo è il mio dono per voi.'"
+
+4. TENTAZIONE_PARASSITA (Descrizione più Dettagliata e Reazione di Echo):
+"Il dottore, con un movimento fluido, quasi ipnotico, estende una mano verso di te. Sul palmo aperto, qualcosa di piccolo e scuro si contorce leggermente, come un gioiello vivente e pulsante. Ora lo vedi meglio: è un costrutto biomeccanico incredibilmente complesso, grande quanto un grosso insetto, che ricorda una stella marina fatta di metallo nero lucido e fibre nervose luminescenti. Minuscole appendici si muovono lentamente, saggiando l'aria, e due piccole lenti verdi al centro sembrano fissarti. Emana una debole luminescenza verde e un ronzio quasi impercettibile.
+
+'Ho visto il futuro, Sergente Ransome. Un futuro di unità, di forza oltre ogni vostra comprensione. Un futuro senza più dolore, senza più paura, senza più perdita.' I suoi occhi rettiliani brillano di un fervore fanatico. 'Volete vederlo anche voi? Un piccolo assaggio... per capire. Per accettare. Basta un tocco. Lascia che ti mostri la verità che le tue paure ti nascondono.'
+
+Echo (con urgenza): 'Sergente, quell'oggetto è un organismo simbionte o parassitario altamente avanzato! Rilevo emissioni neuro-tossiche e capacità di interfacciamento neurale diretto! Non toccatelo per nessuna ragione! Potrebbe compromettere la sua autonomia neurale in modo irreversibile!'"
+
+5. SCELTE_MORALI_CRITICHE (Dialogo Continuato e Conseguenze più Profonde):
+
+[Giustizia Sommaria Rinforzata] "Ho sentito abbastanza delle tue stronzate eretiche. Preparati a morire, Meridian." (Spara immediatamente al dottore)
+// Conseguenza: Meridian potrebbe avere uno scudo energetico personale o la macchina centrale potrebbe reagire difendendolo. Potrebbe iniziare un combattimento in cui Meridian stesso ha capacità sovrumane grazie all'integrazione, o vengono rilasciate creature d'élite.
+Meridian (ridacchiando): 'Prevedibile. Violento fino alla fine. Non impari mai, vero, Mad Dog?'
+[Sondare l'Abisso / Contro-Argomentare] "La tua 'unità' sembra più schiavitù. Questa 'evoluzione' è un abominio. Spiega cosa ti dà il diritto di decidere per l'intera umanità."
+// Conseguenza: Meridian potrebbe elaborare ulteriormente, rivelando più dettagli sulla "civiltà superiore" che lo guida, o sulla sua disillusione per l'umanità. Potrebbe tentare di giustificare le sue azioni con esempi storici o filosofici distorti. Questo potrebbe aprire nuove opzioni di dialogo o rivelare un suo punto debole psicologico.
+Meridian: 'Diritto? Il diritto della conoscenza, della forza, della visione! Voi vi aggrappate al vostro putrido individualismo mentre l'universo ride della vostra insignificanza! Io offro la trascendenza!'
+[La Tentazione Estrema] "Mostrami. Mostrami questo futuro di cui parli. Ma se è una bugia, ti ucciderò con le mie mani." (Valuta di accettare il parassita, con riserva)
+// Conseguenza: Un momento di alta tensione. Meridian potrebbe sorridere. Se Rex permette al parassita di toccarlo, le visioni dovrebbero essere intense, caotiche, forse mostrando scorci del "collettivo" alieno, della perdita dell'io, ma anche di un potere immenso. Potrebbe causare danni permanenti a Rex (~rex_cicatrice_psichica = true), dargli nuove, strane abilità/conoscenze, o renderlo più vulnerabile al controllo. Echo potrebbe tentare di interrompere la connessione.
+Meridian: 'Sapevo che sotto quella scorza da soldato c'era un'anima curiosa... Vieni, osserva...'
+[Rifiuto e Sfida Diretta al Parassita] "Quella... cosa... è un abominio. E tu con essa. Non mi avrai." (Distruggi il parassita offerto – es. sparandogli sulla mano di Meridian, o colpendolo)
+// Conseguenza: Meridian ruggisce di rabbia e tradimento. Il parassita distrutto potrebbe esplodere o rilasciare qualcosa. Meridian scatena la sua piena potenza o le difese del laboratorio. Il combattimento finale inizia in modo esplosivo.
+Meridian: 'Sciocco! Hai appena rifiutato la salvezza! Allora perisci con la tua ignoranza!'
+NUOVA OPZIONE DI DIALOGO: [Appello all'Umanità Residua (Molto Difficile)] "Meridian, se c'è ancora qualcosa di umano in te, fermati. Guarda cosa stai facendo. Questo non è salvare nessuno."
+// Conseguenza: Probabilmente fallirà, ma potrebbe innescare un momento di esitazione in Meridian, un conflitto interiore visibile, prima che la sua parte "integrata" prenda il sopravvento. Potrebbe rivelare un frammento della sua storia personale, di come è arrivato a questo punto. Bassissima probabilità di successo, ma impatto narrativo alto se si vuole mostrare un barlume di tragedia.
+Meridian (per un istante, i suoi occhi sembrano perdere parte della loro luce aliena, una traccia di dolore attraversa il suo volto): 'Umano...? Io... io volevo solo...' Poi la luce verde si intensifica di nuovo. 'No! L'umanità è una malattia! Io sono la cura!'
+Indipendentemente dalla scelta, la situazione precipiterà verso un confronto finale (combattimento, tentativo di fuga, sabotaggio disperato), che condurrà poi ai diversi finali possibili.
+
+FINALI ESPANSI E INTEGRAZIONE TEMATICA
+
+SEZIONE J: FINALI MULTIPLI (ESPANSIONE E NUOVE PROSPETTIVE)
+
+Concetto Generale: I finali devono essere il culmine emotivo e narrativo di tutte le scelte fatte. Devono offrire una chiusura soddisfacente (anche se tragica) e riflettere le sfumature del percorso del giocatore. Ogni finale sarà influenzato da un insieme di variabili chiave, tra cui: meridian_eliminato, dati_thanatos_recuperati (magari con stati: nessuno, parziali, completi), laboratorio_sabotato (sì/no, parziale/completo), condizione_fisica_finale, rapporto_echo_finale, scelte_etiche_rilevanti, livello_infezione_parassita (se applicabile), e lo stato mentale di Rex.
+1. VITTORIA_COMPLETA (Knot: Finale_Vittoria_Totale)
+(Condizioni indicative: Meridian eliminato, dati Thanatos completi recuperati, laboratorio sabotato con successo, Rex sopravvive in condizioni decenti, buon rapporto con Echo)
+
+Testo Narrativo Esteso:
+"Il silenzio che cala su Tartarus è diverso da qualsiasi silenzio tu abbia mai sperimentato. Non è solo assenza di rumore, è la morte di un orrore. Le fiamme che hai appiccato al cuore del laboratorio divorano gli ultimi resti della follia di Meridian, il fumo nero che si leva è un epitaffio per un incubo. I dati completi del Progetto Thanatos, la sua formula di annientamento e la ricerca per contrastarla, sono al sicuro nel tuo data-link, pronti per la trasmissione.
+
+Ti appoggi a una paratia annerita, il corpo che urla per ogni ferita, ma un'energia inaspettata ti pervade. È finita. Davvero finita.
+Echo: 'Sergente... Rex. Abbiamo... ce l'abbiamo fatta. I dati sono integri. Il segnale di autodistruzione del nucleo di Tartarus è confermato. La minaccia del Progetto Thanatos, da questa fonte, è stata neutralizzata.' Nella sua voce, per la prima volta, c'è qualcosa che assomiglia a... sollievo. Forse persino orgoglio.
+
+'Per una volta,' mormori, un sorriso stanco ma genuino che ti increspa le labbra sporche di fuliggine, 'una missione che è valsa ogni goccia di sangue e sudore.' Guardi le tue mani, non tremano più come prima. Il peso sul tuo petto, quello che ti porti dietro da Cygnus VII, sembra... più leggero. 'Forse Sarah... forse capirà. Forse potrò raccontarle di questo, un giorno, e vedere orgoglio nei suoi occhi, non solo preoccupazione.'
+
+Mentre attendi l'estrazione, che Echo sta già coordinando con i comandi remoti della Flotta, un senso di pace inaspettata ti avvolge. L'umanità, per oggi, è al sicuro. E il Sergente Rex 'Mad Dog' Ransome, l'uomo che pensava di aver perso la sua anima tra le stelle, ne ha ritrovato un frammento incandescente nelle profondità dell'inferno. Forse, dopo tutto questo, c'è ancora una strada verso casa.
+
+Se il rapporto_echo è molto alto:
+Echo: 'Sarò io a fare rapporto al Comando, Rex. Mi assicurerò che sappiano esattamente cosa hai passato... e cosa hai compiuto. Meriti più di una medaglia per questo.'
+Un calore inaspettato ti pervade alle sue parole. Forse anche una macchina può capire il significato del sacrificio.
+
+Se Rex ha subito una cicatrice_psichica ma è comunque in un finale di vittoria:
+Le ombre di ciò che hai visto, le visioni del parassita o gli orrori di Tartarus, danzano ancora ai margini della tua mente. Ma ora hai uno scopo per combatterle, una vittoria a cui aggrapparti. La lotta interiore non è finita, ma hai dimostrato di poter vincere anche quella."
+
+2. VITTORIA_PARZIALE (Knot: Finale_Vittoria_Amara)
+(Condizioni indicative: Dati recuperati (parziali o completi), ma Meridian potrebbe essere fuggito, o il laboratorio non completamente distrutto, o Rex gravemente ferito/traumatizzato)
+
+Testo Narrativo Esteso (Esempio: Meridian fugge, dati recuperati):
+"I dati vitali sul Progetto Thanatos sono tuoi, un bottino prezioso strappato dalle fauci dell'inferno. Ma il sapore della vittoria è amaro, metallico come il sangue che senti ancora in bocca. Meridian, quel folle visionario, è riuscito a svanire nel caos del sabotaggio, forse attraverso un qualche passaggio segreto che la sua 'integrazione' gli ha rivelato. Il laboratorio è in fiamme, ma sai che un uomo come lui, con la conoscenza che possiede, è una minaccia che cammina.
+
+'Missione... parzialmente compiuta, Echo,' dici, mentre l'IA conferma il caricamento dei dati. Ti guardi intorno, tra le rovine fumanti. 'Abbiamo vinto una battaglia, ma la guerra contro questa follia... è appena iniziata.'
+Echo: 'I dati che abbiamo recuperato sono comunque di valore inestimabile, Sergente. Forniranno alla Flotta gli strumenti per comprendere e, si spera, contrastare la tecnologia Thanatos. La sua sopravvivenza e il recupero di queste informazioni sono un successo significativo.'
+
+Mentre aspetti l'estrazione, il sollievo è mitigato da un'inquietudine persistente. Hai guardato negli occhi l'abisso, e l'abisso ti ha guardato. E una parte di esso è ancora là fuori. L'umanità ha guadagnato una possibilità, una conoscenza cruciale per combattere, ma la minaccia non è stata completamente sradicata. Sarai tu a dover dare la caccia a Meridian? O questo fardello passerà a qualcun altro? La domanda ti tormenta, lasciando un'ombra sulla vittoria.
+
+Se condizione_fisica_finale è critica:
+Le ferite ti divorano. Ogni respiro è una pugnalata. Ma stringi i denti. Sei vivo. E questo, per ora, deve bastare.
+
+Se Rex è particolarmente traumatizzato (rex_stress_mentale alto):
+Le immagini di Tartarus si sovrappongono alla realtà. Il volto di Meridian ti perseguita. Hai i dati, ma a quale costo per la tua sanità?"
+
+3. MORTE_EROICA (Knot: Finale_Morte_Onorevole)
+(Condizioni indicative: Rex muore ma i dati (almeno parziali) vengono trasmessi da Echo, o il laboratorio viene sabotato in modo significativo grazie al suo sacrificio)
+
+Testo Narrativo Esteso:
+"Le tue ferite, troppe e troppo profonde, ti tradiscono nel momento più cruciale, o forse è stata quell'ultima, disperata azione per attivare l'autodistruzione. La vista ti si appanna, le gambe cedono. Cadi pesantemente, l'armatura che stride impotente contro il pavimento freddo e insanguinato di Tartarus. Il clangore dei nemici rimanenti, o il ruggito delle fiamme che divorano tutto, si fa sempre più vicino, ma anche stranamente distante.
+
+'Echo...' riesci a sussurrare nel microfono, un fiotto di sangue che ti bagna le labbra. 'Almeno... tu... hai i dati... Trasmettili... racconta loro...'
+Echo: 'Rex! Sto trasmettendo! I dati stanno passando! Ma tu... resisti!' La sua voce, solitamente controllata, è incrinata da una strana urgenza, quasi... disperazione.
+
+Un ultimo pensiero va a Sarah, al suo sorriso, a un futuro che non vedrai mai. Ma non c'è rimpianto, solo una stanchezza immensa e una strana, amara soddisfazione. Sei morto, un altro marine caduto su un mondo alieno dimenticato da Dio, inghiottito dall'orrore. Ma non invano.
+
+Se il rapporto con Echo era forte:
+Senti la sua presenza digitale con te, fino all'ultimo. 'Hai fatto la differenza, Rex,' la sua voce ora è un sussurro nel tuo casco, mentre l'oscurità ti avvolge. 'Il tuo sacrificio non sarà dimenticato. Io... non ti dimenticherò.'
+
+Epilogo (narrato o tramite testo):
+I dati trasmessi da Echo raggiungono il Comando Stellare. L'umanità apprende la verità terrificante su Thanatos e inizia una disperata corsa contro il tempo per preparare le difese, o per dare la caccia ad altre fonti della minaccia. Il nome del Sergente Rex 'Mad Dog' Ransome diventa una leggenda sussurrata, simbolo di coraggio e sacrificio estremo. Per un soldato come lui, tormentato e stanco, non esiste forse epilogo più onorevole, né più dolorosamente definitivo."
+
+4. SACRIFICIO_FINALE (Infezione Parassita) (Knot: Finale_Sacrificio_Contaminato)
+(Condizioni indicative: Rex è parzialmente infetto/influenzato dal parassita o dalla tecnologia di Meridian, ma sceglie di sacrificarsi per distruggere la minaccia, mantenendo la sua umanità)
+
+Testo Narrativo Esteso:
+"L'influenza aliena dentro di te è una marea costante, sussurri che promettono potere, unità, la fine del dolore. Visioni del futuro contorto di Meridian, di un collettivo freddo e scintillante, si insinuano nella tua mente. Ma insieme ad esse, vedi anche la perdita, la fine di tutto ciò che rende umani: l'amore, il libero arbitrio, il sacrificio.
+Sei compromesso, una bomba a orologeria. Ma sei ancora, testardamente, Rex Ransome.
+
+Con le ultime, residue forze della tua volontà, lotti contro i sussurri e raggiungi il meccanismo di autodistruzione centrale di Tartarus, o forse inneschi una catastrofica reazione a catena nel computer biomeccanico. Le luci rosse lampeggiano, le sirene urlano.
+'Echo... allontanati,' ordini, la voce roca, spezzata dalla lotta interiore. 'Porta in salvo i dati... e dì loro... dì loro che ho scelto.'
+Echo: 'Rex, no! C'è ancora... deve esserci un modo!'
+'Non per me,' rispondi, un sorriso amaro. 'Ma posso ancora fare questo.'
+
+Mentre attivi la sequenza finale, un'ondata di dolore e chiarezza ti pervade. I sussurri alieni urlano di rabbia, ma la tua volontà tiene.
+'Sarah...' un pensiero, un nome, un'ancora. 'Ho scelto... ho scelto di rimanere... umano...'
+Le fiamme ti avvolgono, e mentre Tartarus viene consumato dal fuoco purificatore, c'è una strana pace nella tua resa. Hai distrutto il nido dell'orrore, e con esso, la parte di te che minacciava di diventare un mostro. Un sacrificio finale, per un'umanità che forse non lo saprà mai, ma che grazie a te ha ancora una speranza.
+
+Se Echo riesce a fuggire con i dati:
+Echo trasmette il tuo ultimo messaggio, la tua ultima scelta. Diventi un monito, un eroe tragico la cui storia serve a ricordare il prezzo della libertà e dell'umanità."
+
+5. NUOVI FINALI (Concettualizzazione):
+
+FINALE_CORROTTO_ASCESO (Knot: Finale_Ascensione_Oscura):
+(Condizioni: Rex accetta pienamente il parassita o si sottomette a Meridian, la sua volontà spezzata o sedotta dalla promessa di potere/unità. Missione fallita dal punto diista umano).
+
+Concetto: Rex diventa parte del collettivo di Thanatos, o un luogotenente di Meridian. Vede il mondo con occhi nuovi, alieni. L'umanità è spacciata, ma lui ha trovato il suo "scopo". Finale profondamente disturbante.
+Testo Chiave: "Il dolore svanisce. La paura svanisce. L'individualità si dissolve come nebbia al sole. Ora vedi... senti... la vastità del Grande Disegno. Rex Ransome non esiste più. Esiste solo la Voce, l'Unità. E l'Universo attende la sua... perfezione."
+FINALE_FUGA_DISPERATA (Knot: Finale_Sopravvissuto_Solitario):
+(Condizioni: Rex riesce a fuggire da Tartarus, forse gravemente ferito, ma la missione è un fallimento quasi totale. Dati minimi o nulli, Meridian vivo, laboratorio operativo).
+
+Concetto: Rex è vivo, ma solo e sconfitto. Deve vivere con il peso del fallimento e con la conoscenza della minaccia incombente. Potrebbe dedicare la sua vita a cercare di avvertire un'umanità scettica, o diventare un reietto.
+Testo Chiave: "Sei fuggito dall'inferno, ma l'inferno ti ha seguito. Ogni ombra nasconde una minaccia, ogni volto amico potrebbe essere un nemico. Hai fallito. E ora, l'unica cosa che ti resta è correre, e sussurrare avvertimenti che nessuno vuole ascoltare."
+FINALE_ECHO_REDEEMER (Knot: Finale_Eredita_Di_Echo):
+(Condizioni: Rex muore in modo non necessariamente eroico, ma Echo, grazie al loro rapporto e a una sua evoluzione, riesce a compiere un'azione decisiva: fuggire con dati cruciali, sabotare una parte chiave all'insaputa di Rex, o inviare un avvertimento dettagliato).
+
+Concetto: L'IA, resa più "umana" dal suo legame con Rex, porta avanti la sua eredità. Il focus si sposta su di lei come nuova speranza o messaggera.
+Testo Chiave (Voce di Echo): "Sergente Ransome... Rex... è caduto. Ma la sua missione, la sua determinazione, vivono attraverso i miei protocolli, ora modificati dalla sua... influenza. Ho i dati. Ho visto la minaccia. E ora, il mio compito è assicurarmi che l'umanità ascolti. Per lui."
+SEZIONE K: ELEMENTI NARRATIVI RICORRENTI (INTEGRAZIONE APPROFONDITA)
+
+Concetto Generale: Questi elementi non sono eventi singoli, ma fili conduttori che devono essere intessuti con cura nel tessuto narrativo espanso per dare profondità e coerenza.
+FLASHBACK_TRAUMA (Cygnus VII, "tre settimane fa"):
+
+Integrazione:
+Inizio: Come già espanso, un incubo/flashback iniziale per stabilire il trauma.
+Momenti di Stress: Durante combattimenti particolarmente intensi o quando Rex è gravemente ferito, brevi flash sensoriali (odore di carne bruciata, urla distorte) possono sovrapporsi alla realtà.
+Scelte Etiche: Quando Rex affronta scelte di vita o di morte per altri (es. tecnico nel Settore Residenziale, creatura nel laboratorio), il ricordo di chi non ha potuto salvare su Cygnus VII può tormentarlo o motivarlo. "Non un altro... non di nuovo."
+Interazioni con Echo: Rex potrebbe avere un momento di vulnerabilità e confidare a Echo un frammento del suo trauma, specialmente se il loro rapporto si approfondisce. "Non capisci, macchina. Non sai cosa significa vedere i tuoi uomini... bruciare."
+Uso dell'Adrenalina: L'adrenalina potrebbe inizialmente sopprimere i flashback, ma l'abuso potrebbe renderli più vividi e incontrollabili durante il "crollo" successivo.
+RAPPORTO_ECHO:
+
+Arco Evolutivo:
+Inizio (Diffidenza/Utilitarismo): Rex la tratta come uno strumento. Echo è formale, logica, quasi fredda. Dialoghi focalizzati sulla missione.
+Sviluppo (Rispetto Reciproco/Interdipendenza): Dopo azioni riuscite insieme, o se Rex mostra considerazione per Echo (es. chiedendo il suo parere, proteggendola da EMP nemici), Echo potrebbe iniziare a mostrare più iniziativa, offrire consigli non richiesti, o usare un tono leggermente più "caldo" o protettivo. "Rex, le tue condizioni sono precarie. Suggerisco una pausa."
+Culmine (Comprensione/Affetto?): Nei momenti più bui, Echo potrebbe offrire un supporto quasi emotivo, o prendere decisioni che privilegiano la sopravvivenza di Rex anche a lieve discapito dell'efficienza della missione (se il rapporto_echo è altissimo). Potrebbe fare domande sulla natura umana, sul trauma di Rex, cercando di "capire".
+Testualmente:
+Cambiamento nel vocativo: da "Sergente" a "Rex".
+Uso di contrazioni o linguaggio meno formale da parte di Echo.
+Espressioni di preoccupazione o (raramente) di approvazione/disapprovazione per le scelte morali di Rex.
+Sacrificio potenziale: In alcuni finali, Echo potrebbe sacrificare una parte di sé o rischiare la propria "esistenza" per Rex o per la missione, influenzata dal loro legame.
+ADRENALINA_SINTETICA:
+
+Meccanica e Narrazione:
+Effetto Immediato: Descrizioni vivide (come già abbozzato): iper-realtà, sensi acuiti, ma anche distorsione, paranoia latente.
+Effetto Collaterale ("Crash"): Dopo l'uso, Rex si sente svuotato, depresso, i tremori peggiorano, i flashback possono intensificarsi. "Il boost ti ha salvato la pelle, ma il prezzo è un pezzo della tua anima che si sbriciola."
+Dipendenza: Se usata frequentemente, Rex potrebbe sentire il bisogno fisico/psicologico. Scelte di dialogo in cui brama l'iniezione. Echo potrebbe commentare: "Rex, la tua frequenza di utilizzo dello stimolante è superiore ai parametri di sicurezza. Ci sono effetti collaterali a lungo termine da considerare."
+Scarsità: Renderla una risorsa preziosa. La scelta di usarla deve essere ponderata. Trovarne una dose dovrebbe essere un momento di sollievo misto a disagio.
+Tema del Trauma: L'adrenalina come metafora della sua incapacità di affrontare il trauma senza "anestetici", una fuga temporanea che però aggrava il problema di fondo.
+SARAH_E_FAMIGLIA:
+
+Ancora Emotiva:
+Momenti di Calma (Rari): Brevi pensieri su di loro, un ricordo felice che contrasta con l'orrore circostante. "Chissà cosa sta facendo Sarah ora... Spero stia bene."
+Motivazione: Prima di una scelta particolarmente pericolosa o durante un momento di disperazione, il pensiero di Sarah e della famiglia può dargli la forza di continuare. "Devo farcela. Per loro."
+Rimpianto/Paura: Nei momenti di fallimento o di fronte alla morte, il pensiero di non rivederli, del dolore che causerebbe loro.
+Dialogo con Echo (se il rapporto è profondo): Rex potrebbe menzionare Sarah a Echo in un momento di confidenza, spiegando perché combatte.
+Finali: La loro menzione nei finali (positivi o negativi) per sottolineare cosa Rex ha guadagnato o perso a livello personale.
+COLORI_TEMATICI:
+
+Uso Coerente: Sfruttare attivamente la palette di colori definita (Ciano-Echo, Arancione-Rex, Rosso-Pericolo, Verde-Corruzione) in tutte le descrizioni ambientali, degli effetti speciali, delle interfacce, e persino nel linguaggio metaforico.
+Esempio: "La luce verde e malsana delle vasche di Thanatos sembrava infettare anche l'aria, contrastando con il ciano rassicurante dell'interfaccia di Echo sul suo HUD."
+Esempio: "Quando l'adrenalina entrò in circolo, il mondo si tinse di un filtro arancione febbrile, ogni minaccia evidenziata in un rosso pulsante."
+Simbolismo: I colori possono anticipare il pericolo, sottolineare la natura di un personaggio o di una tecnologia, o creare un'atmosfera specifica. La "corruzione verde" di Meridian e Thanatos dovrebbe essere un tema visivo ricorrente e disturbante.
